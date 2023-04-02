@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/acheong08/OpenAIAuth/auth"
 )
 
 type Account struct {
-	Username string `json:"username"`
+	Email    string `json:"username"`
 	Password string `json:"password"`
 }
 type Proxy struct {
@@ -20,7 +22,7 @@ type Proxy struct {
 
 func (p Proxy) Socks5URL() string {
 	// Returns proxy URL (socks5)
-	return fmt.Sprintf("socks5h://%s:%s@%s:%s", p.User, p.Pass, p.IP, p.Port)
+	return fmt.Sprintf("socks5://%s:%s@%s:%s", p.User, p.Pass, p.IP, p.Port)
 }
 
 // Read accounts.txt and create a list of accounts
@@ -39,7 +41,7 @@ func readAccounts() []Account {
 		line := strings.Split(scanner.Text(), ":")
 		// Create an account
 		account := Account{
-			Username: line[0],
+			Email:    line[0],
 			Password: line[1],
 		}
 		// Append to accounts
@@ -79,7 +81,70 @@ func main() {
 	// Read accounts and proxies
 	accounts := readAccounts()
 	proxies := readProxies()
-	// Print accounts and proxies as test
-	fmt.Println(accounts)
-	fmt.Println(proxies)
+	puid := os.Getenv("PUID")
+
+	// Loop through each account
+	for _, account := range accounts {
+		println(proxies[0].Socks5URL())
+		println(account.Email)
+		println(account.Password)
+		authenticator := auth.NewAuthenticator(account.Email, puid, account.Password, proxies[0].Socks5URL())
+		// Push used proxy to the back of the list
+		proxies = append(proxies[1:], proxies[0])
+		err := authenticator.Begin()
+		if err.Error != nil {
+			// println("Error: " + err.Details)
+			println("Location: " + err.Location)
+			println("Status code: " + fmt.Sprint(err.StatusCode))
+			println("Embedded error: " + err.Error.Error())
+			return
+		}
+		access_token, err := authenticator.GetAccessToken()
+		if err.Error != nil {
+			// println("Error: " + err.Details)
+			println("Location: " + err.Location)
+			println("Status code: " + fmt.Sprint(err.StatusCode))
+			println("Embedded error: " + err.Error.Error())
+			return
+		}
+		// Append access token to access_tokens.txt
+		f, go_err := os.OpenFile("access_tokens.txt", os.O_APPEND|os.O_WRONLY, 0600)
+		if go_err != nil {
+			continue
+		}
+		defer f.Close()
+		if _, go_err = f.WriteString(access_token + "\n"); go_err != nil {
+			continue
+		}
+		// Write authenticated account to authenticated_accounts.txt
+		f, go_err = os.OpenFile("authenticated_accounts.txt", os.O_APPEND|os.O_WRONLY, 0600)
+		if go_err != nil {
+			continue
+		}
+		defer f.Close()
+		if _, go_err = f.WriteString(account.Email + ":" + account.Password + "\n"); go_err != nil {
+			continue
+		}
+		// Remove accounts.txt
+		os.Remove("accounts.txt")
+		// Create accounts.txt
+		f, go_err = os.Create("accounts.txt")
+		if go_err != nil {
+			continue
+		}
+		defer f.Close()
+		// Remove account from accounts
+		accounts = accounts[1:]
+		// Write unauthenticated accounts to accounts.txt
+		for _, acc := range accounts {
+			// Check if account is authenticated
+			if acc.Email == account.Email {
+				continue
+			}
+			if _, go_err = f.WriteString(acc.Email + ":" + acc.Password + "\n"); go_err != nil {
+				continue
+			}
+		}
+
+	}
 }
