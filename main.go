@@ -10,6 +10,7 @@ import (
 var HOST string
 var PORT string
 var PUID string
+var ACCESS_TOKENS []string
 
 func init() {
 	HOST = os.Getenv("SERVER_HOST")
@@ -52,6 +53,17 @@ func main() {
 			return
 		}
 		c.String(200, "password updated")
+	})
+	router.PATCH("/admin/tokens", admin_check, func(c *gin.Context) {
+		// Get the tokens from the request (json) and update the tokens
+		var tokens []string
+		err := c.BindJSON(&tokens)
+		if err != nil {
+			c.String(400, "tokens not provided")
+			return
+		}
+		ACCESS_TOKENS = tokens
+		c.String(200, "tokens updated")
 	})
 	router.Run(HOST + ":" + PORT)
 }
