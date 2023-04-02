@@ -144,6 +144,9 @@ func main() {
 			if chat_response.Message.Content.Parts[0] == "" || chat_response.Message.Author.Role != "assistant" {
 				continue
 			}
+			if chat_response.Message.Metadata.Timestamp == "absolute" {
+				continue
+			}
 			tmp_fulltext := chat_response.Message.Content.Parts[0]
 			chat_response.Message.Content.Parts[0] = strings.ReplaceAll(chat_response.Message.Content.Parts[0], fulltext, "")
 			var delta responses.Delta = responses.Delta{
