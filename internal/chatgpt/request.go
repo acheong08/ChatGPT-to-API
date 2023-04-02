@@ -45,7 +45,6 @@ func SendRequest(message typings.ChatGPTRequest, puid *string, access_token stri
 	if err != nil {
 		return &http.Response{}, err
 	}
-	println(string(body_json))
 	response, err := client.Do(request)
 	return response, err
 }
