@@ -2,7 +2,8 @@ package main
 
 import (
 	"freechatgpt/internal/chatgpt"
-	internal_types "freechatgpt/internal/types"
+	typings "freechatgpt/internal/typings"
+	"io"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -69,7 +70,7 @@ func main() {
 	})
 	/// Public routes
 	router.POST("/v1/chat/completions", func(c *gin.Context) {
-		var chat_request internal_types.APIRequest
+		var chat_request typings.APIRequest
 		err := c.BindJSON(&chat_request)
 		if err != nil {
 			c.String(400, "chat request not provided")
@@ -77,7 +78,18 @@ func main() {
 		}
 		// Convert the chat request to a ChatGPT request
 		chatgpt_request := chatgpt.ConvertAPIRequest(chat_request)
-		c.JSON(200, chatgpt_request)
+		// c.JSON(200, chatgpt_request)
+		response, err := chatgpt.SendRequest(chatgpt_request, PUID)
+		if err != nil {
+			c.String(500, "error sending request")
+			return
+		}
+		defer response.Body.Close()
+		c.Stream(func(w io.Writer) bool {
+			// Write data to client
+			io.Copy(w, response.Body)
+			return false
+		})
 
 	})
 	router.Run(HOST + ":" + PORT)

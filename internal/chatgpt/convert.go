@@ -1,11 +1,11 @@
 package chatgpt
 
 import (
-	internal_types "freechatgpt/internal/types"
+	typings "freechatgpt/internal/typings"
 )
 
-func ConvertAPIRequest(api_request internal_types.APIRequest) internal_types.ChatGPTRequest {
-	chatgpt_request := internal_types.NewChatGPTRequest()
+func ConvertAPIRequest(api_request typings.APIRequest) typings.ChatGPTRequest {
+	chatgpt_request := typings.NewChatGPTRequest()
 	for _, api_message := range api_request.Messages {
 		chatgpt_request.AddMessage(api_message.Role, api_message.Content)
 	}
