@@ -80,7 +80,20 @@ func main() {
 		c.String(200, "tokens updated")
 	})
 	/// Public routes
+	router.OPTIONS("/v1/chat/completions", func(c *gin.Context) {
+		// Set headers for CORS
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST")
+		c.Header("Access-Control-Allow-Headers", "*")
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
 	router.POST("/v1/chat/completions", func(c *gin.Context) {
+		// Add CORS headers
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST")
+		c.Header("Access-Control-Allow-Headers", "*")
 		var chat_request typings.APIRequest
 		err := c.BindJSON(&chat_request)
 		if err != nil {
