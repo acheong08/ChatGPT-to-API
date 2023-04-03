@@ -52,3 +52,26 @@ type Delta struct {
 	Content string `json:"content"`
 	Role    string `json:"role"`
 }
+
+type ChatCompletion struct {
+	ID      string   `json:"id"`
+	Object  string   `json:"object"`
+	Created int64    `json:"created"`
+	Model   string   `json:"model"`
+	Usage   usage    `json:"usage"`
+	Choices []Choice `json:"choices"`
+}
+type Msg struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+type Choice struct {
+	Index        int         `json:"index"`
+	Message      Msg         `json:"message"`
+	FinishReason interface{} `json:"finish_reason"`
+}
+type usage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
+}

@@ -194,18 +194,46 @@ func main() {
 				})
 				return
 			}
-			_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
-			if err != nil {
-				c.JSON(500, gin.H{
-					"error": "error writing response",
-				})
-				return
+			if chat_request.Stream {
+				_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
+				if err != nil {
+					c.JSON(500, gin.H{
+						"error": "error writing response",
+					})
+					return
+				}
 			}
 
 			// Flush the response writer buffer to ensure that the client receives each line as it's written
 			c.Writer.Flush()
 			fulltext = tmp_fulltext
 			if finish_reason != nil {
+				if !chat_request.Stream {
+					full_response := responses.ChatCompletion{
+						ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
+						Object:  "chat.completion",
+						Created: int64(chat_response.Message.CreateTime),
+						Model:   "gpt-3.5-turbo-0301",
+						Choices: []responses.Choice{
+							{
+								Message: responses.Msg{
+									Content: fulltext,
+									Role:    "assistant",
+								},
+								Index:        0,
+								FinishReason: "stop",
+							},
+						},
+					}
+					if err != nil {
+						c.JSON(500, gin.H{
+							"error": "error parsing response",
+						})
+						return
+					}
+					c.JSON(200, full_response)
+					return
+				}
 				c.String(200, "data: [DONE]")
 				break
 			}
