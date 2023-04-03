@@ -145,10 +145,7 @@ func main() {
 			var chat_response responses.Data
 			err = json.Unmarshal([]byte(line), &chat_response)
 			if err != nil {
-				c.JSON(500, gin.H{
-					"error": "error parsing response",
-				})
-				return
+				continue
 			}
 			if chat_response.Error != nil {
 				c.JSON(500, gin.H{
