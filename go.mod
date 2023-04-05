@@ -7,7 +7,6 @@ require (
 	github.com/bogdanfinn/tls-client v1.3.8
 	github.com/gin-gonic/gin v1.9.0
 	github.com/google/uuid v1.3.0
-	github.com/r3labs/sse/v2 v2.10.0
 )
 
 require (
@@ -37,6 +36,5 @@ require (
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
-	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
