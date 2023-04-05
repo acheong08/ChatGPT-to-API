@@ -88,7 +88,7 @@ func main() {
 		println(proxies[0].Socks5URL())
 		println(account.Email)
 		println(account.Password)
-		authenticator := auth.NewAuthenticator(account.Email, puid, account.Password, proxies[0].Socks5URL())
+		authenticator := auth.NewAuthenticator(account.Email, account.Password, puid, proxies[0].Socks5URL())
 		// Push used proxy to the back of the list
 		proxies = append(proxies[1:], proxies[0])
 		err := authenticator.Begin()

@@ -2,7 +2,7 @@ module authenticator
 
 go 1.20
 
-require github.com/acheong08/OpenAIAuth v0.0.0-20230402042927-94287d151638
+require github.com/acheong08/OpenAIAuth v0.0.0-20230404125145-978e2599a89b
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
