@@ -94,6 +94,13 @@ func nightmare(c *gin.Context) {
 	var fulltext string
 
 	// Read the response byte by byte until a newline character is encountered
+	if chat_request.Stream {
+		// Response content type is text/event-stream
+		c.Header("Content-Type", "text/event-stream")
+	} else {
+		// Response content type is application/json
+		c.Header("Content-Type", "application/json")
+	}
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
