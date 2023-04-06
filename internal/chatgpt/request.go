@@ -3,6 +3,7 @@ package chatgpt
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 
 	typings "freechatgpt/internal/typings"
 
@@ -18,17 +19,30 @@ var (
 		tls_client.WithNotFollowRedirects(),
 		tls_client.WithCookieJar(jar), // create cookieJar instance and pass it as argument
 	}
-	client, _ = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
+	client, _         = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
+	http_proxy        = os.Getenv("http_proxy")
+	API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
 )
 
 func SendRequest(message typings.ChatGPTRequest, puid *string, access_token string) (*http.Response, error) {
+	if http_proxy != "" {
+		client.SetProxy(http_proxy)
+		println("Proxy set:" + http_proxy)
+	}
+
+	apiUrl := "https://chat.openai.com/backend-api/conversation"
+	if API_REVERSE_PROXY != "" {
+		apiUrl = API_REVERSE_PROXY
+		println("API_REVERSE_PROXY set:" + API_REVERSE_PROXY)
+	}
+
 	// JSONify the body and add it to the request
 	body_json, err := json.Marshal(message)
 	if err != nil {
 		return &http.Response{}, err
 	}
 
-	request, err := http.NewRequest(http.MethodPost, "https://chat.openai.com/backend-api/conversation", bytes.NewBuffer(body_json))
+	request, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(body_json))
 	if err != nil {
 		return &http.Response{}, err
 	}
