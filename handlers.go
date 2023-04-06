@@ -107,9 +107,6 @@ func nightmare(c *gin.Context) {
 			if err == io.EOF {
 				break
 			}
-			c.JSON(500, gin.H{
-				"error": "error reading response",
-			})
 			return
 		}
 		if len(line) < 6 {
@@ -124,9 +121,6 @@ func nightmare(c *gin.Context) {
 			continue
 		}
 		if chat_response.Error != nil {
-			c.JSON(500, gin.H{
-				"error": chat_response.Error,
-			})
 			return
 		}
 		if chat_response.Message.Content.Parts[0] == "" || chat_response.Message.Author.Role != "assistant" {
@@ -165,17 +159,11 @@ func nightmare(c *gin.Context) {
 		// Stream the response to the client
 		response_string, err := json.Marshal(completions_response)
 		if err != nil {
-			c.JSON(500, gin.H{
-				"error": "error parsing response",
-			})
 			return
 		}
 		if chat_request.Stream {
 			_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
 			if err != nil {
-				c.JSON(500, gin.H{
-					"error": "error writing response",
-				})
 				return
 			}
 		}
@@ -202,9 +190,6 @@ func nightmare(c *gin.Context) {
 					},
 				}
 				if err != nil {
-					c.JSON(500, gin.H{
-						"error": "error parsing response",
-					})
 					return
 				}
 				c.JSON(200, full_response)
