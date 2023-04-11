@@ -67,7 +67,8 @@ func nightmare(c *gin.Context) {
 	err := c.BindJSON(&original_request)
 	if err != nil {
 		c.JSON(400, gin.H{
-			"error": "invalid request",
+			"error":   "invalid request",
+			"details": err.Error(),
 		})
 		return
 	}
@@ -121,69 +122,65 @@ func nightmare(c *gin.Context) {
 		}
 		// Remove "data: " from the beginning of the line
 		line = line[6:]
-		// Parse the line as JSON
-		var original_response responses.Data
-		err = json.Unmarshal([]byte(line), &original_response)
-		if err != nil {
-			continue
-		}
-		if original_response.Error != nil {
-			return
-		}
-		if original_response.Message.Content.Parts[0] == "" || original_response.Message.Author.Role != "assistant" {
-			continue
-		}
-		if original_response.Message.Metadata.Timestamp == "absolute" {
-			continue
-		}
-		tmp_fulltext := original_response.Message.Content.Parts[0]
-		original_response.Message.Content.Parts[0] = strings.ReplaceAll(original_response.Message.Content.Parts[0], fulltext, "")
-		var delta responses.Delta = responses.Delta{
-			Content: original_response.Message.Content.Parts[0],
-			Role:    "assistant",
-		}
-		var finish_reason interface{}
-		if original_response.Message.Metadata.FinishDetails != nil {
-			finish_reason = "stop"
-			delta.Content = ""
-		} else {
-			finish_reason = nil
-		}
-		translated_response := responses.ChatCompletionChunk{
-			ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
-			Object:  "chat.completion.chunk",
-			Created: int64(original_response.Message.CreateTime),
-			Model:   "gpt-3.5-turbo-0301",
-			Choices: []responses.Choices{
-				{
-					Index:        0,
-					Delta:        delta,
-					FinishReason: finish_reason,
-				},
-			},
-		}
-
-		// Stream the response to the client
-		response_string, err := json.Marshal(translated_response)
-		if err != nil {
-			continue
-		}
-		if original_request.Stream {
-			_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
+		// Check if line starts with [DONE]
+		if !strings.HasPrefix(line, "[DONE]") {
+			// Parse the line as JSON
+			var original_response responses.Data
+			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
+				println(line)
+				continue
+			}
+			if original_response.Error != nil {
 				return
 			}
-		}
+			if original_response.Message.Content.Parts[0] == "" || original_response.Message.Author.Role != "assistant" {
+				continue
+			}
+			if original_response.Message.Metadata.Timestamp == "absolute" {
+				continue
+			}
+			tmp_fulltext := original_response.Message.Content.Parts[0]
+			original_response.Message.Content.Parts[0] = strings.ReplaceAll(original_response.Message.Content.Parts[0], fulltext, "")
+			var delta responses.Delta = responses.Delta{
+				Content: original_response.Message.Content.Parts[0],
+				Role:    "assistant",
+			}
+			translated_response := responses.ChatCompletionChunk{
+				ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
+				Object:  "chat.completion.chunk",
+				Created: int64(original_response.Message.CreateTime),
+				Model:   "gpt-3.5-turbo-0301",
+				Choices: []responses.Choices{
+					{
+						Index:        0,
+						Delta:        delta,
+						FinishReason: nil,
+					},
+				},
+			}
 
-		// Flush the response writer buffer to ensure that the client receives each line as it's written
-		c.Writer.Flush()
-		fulltext = tmp_fulltext
-		if finish_reason != nil {
+			// Stream the response to the client
+			response_string, err := json.Marshal(translated_response)
+			if err != nil {
+				continue
+			}
+			if original_request.Stream {
+				_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
+				if err != nil {
+					return
+				}
+			}
+
+			// Flush the response writer buffer to ensure that the client receives each line as it's written
+			c.Writer.Flush()
+			fulltext = tmp_fulltext
+		} else {
 			if !original_request.Stream {
 				full_response := responses.ChatCompletion{
 					ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
 					Object:  "chat.completion",
-					Created: int64(original_response.Message.CreateTime),
+					Created: int64(0),
 					Model:   "gpt-3.5-turbo-0301",
 					Choices: []responses.Choice{
 						{
@@ -204,6 +201,7 @@ func nightmare(c *gin.Context) {
 			}
 			c.String(200, "data: [DONE]")
 			break
+
 		}
 	}
 
