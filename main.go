@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"freechatgpt/internal/tokens"
 	"os"
 
+	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +23,29 @@ func init() {
 	}
 	if PORT == "" {
 		PORT = "8080"
+	}
+	// Check if access_tokens.json exists
+	if _, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
+		// Create the file
+		file, err := os.Create("access_tokens.json")
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+	} else {
+		// Load the tokens
+		file, err := os.Open("access_tokens.json")
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+		decoder := json.NewDecoder(file)
+		var token_list []string
+		err = decoder.Decode(&token_list)
+		if err != nil {
+			panic(err)
+		}
+		ACCESS_TOKENS = tokens.NewAccessToken(token_list)
 	}
 }
 
@@ -45,5 +70,5 @@ func main() {
 	/// Public routes
 	router.OPTIONS("/v1/chat/completions", optionsHandler)
 	router.POST("/v1/chat/completions", nightmare)
-	router.Run(HOST + ":" + PORT)
+	endless.ListenAndServe(HOST+":"+PORT, router)
 }
