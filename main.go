@@ -43,7 +43,7 @@ func init() {
 		var token_list []string
 		err = decoder.Decode(&token_list)
 		if err != nil {
-			panic(err)
+			return
 		}
 		ACCESS_TOKENS = tokens.NewAccessToken(token_list)
 	}
