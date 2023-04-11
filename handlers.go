@@ -166,7 +166,7 @@ func nightmare(c *gin.Context) {
 		// Stream the response to the client
 		response_string, err := json.Marshal(translated_response)
 		if err != nil {
-			return
+			continue
 		}
 		if original_request.Stream {
 			_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
