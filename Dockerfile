@@ -17,8 +17,8 @@ RUN go mod download
 # Copy the source code
 COPY . .
 
-# Build the Go application and install it
-RUN go install .
+# Build the Go application and output the binary to /app/ChatGPT-Proxy-V4
+RUN go build -o /app/ChatGPT-Proxy-V4 .
 
 # Use a scratch image as the final distroless image
 FROM scratch
@@ -27,7 +27,7 @@ FROM scratch
 WORKDIR /app
 
 # Copy the built Go binary from the builder stage
-COPY --from=builder /go/bin/ChatGPT-Proxy-V4 /app/ChatGPT-Proxy-V4
+COPY --from=builder /app/ChatGPT-Proxy-V4 /app/ChatGPT-Proxy-V4
 
 # Expose the port where the application is running
 EXPOSE 8080
