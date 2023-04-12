@@ -1,26 +1,36 @@
-# 设置基础镜像为 Golang 官方镜像
-FROM golang:1.20.3-alpine
+# Use the official Golang image as the builder
+FROM golang:1.20.3-alpine as builder
 
-# 设置环境变量
-# Reverse Proxy - Available on accessToken
-# Default: https://bypass.churchless.tech/api/conversation
-ENV API_REVERSE_PROXY 'https://bypass.churchless.tech/api/conversation'
-ENV SERVER_HOST '0.0.0.0'
+# Enable CGO to use C libraries (set to 0 to disable it)
+# We set it to 0 to build a fully static binary for our final image
+ENV CGO_ENABLED=0
 
-# 设置工作目录为 /app
+# Set the working directory
 WORKDIR /app
 
-# 将本地应用程序复制到容器中
-COPY . .
+# Copy the Go Modules manifests (go.mod and go.sum files)
+COPY go.mod go.sum ./
 
-# 下载应用程序所需的依赖项
+# Download the dependencies
 RUN go mod download
 
-# 构建应用程序二进制文件
-RUN go build -o app
+# Copy the source code
+COPY . .
 
-# 暴露应用程序运行的端口
+# Build the Go application and install it
+RUN go install .
+
+# Use a scratch image as the final distroless image
+FROM scratch
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built Go binary from the builder stage
+COPY --from=builder /go/bin/ChatGPT-Proxy-V4 /app/ChatGPT-Proxy-V4
+
+# Expose the port where the application is running
 EXPOSE 8080
 
-# 启动应用程序
-CMD ["./app"]
+# Start the application
+CMD [ "./ChatGPT-Proxy-V4" ]
