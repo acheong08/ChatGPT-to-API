@@ -3,8 +3,6 @@ Create a fake API using ChatGPT's website
 
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
-**When calling the API, you must include the authorization parameter in the request header: `'Authorization':'Bearer ' + accessToken`.**
-
 **You can get your accessToken from the following link: [ChatGPT](https://chat.openai.com/api/auth/session)**
 
 **This API can be used with the project [BetterChatGPT](https://github.com/huangzt/BetterChatGPT)**
