@@ -45,5 +45,8 @@ services:
       # If the parameter API_REVERSE_PROXY is empty, the default request URL is https://chat.openai.com/backend-api/conversation, and the PUID is required.
       # You can get your PUID for Plus account from the following link: https://chat.openai.com/api/auth/session.
       PUID: xxx
-
 ```
+
+## WHERE ARE MY API DOCS?
+Just use [OpenAI's](https://platform.openai.com/docs/api-reference/chat)...
+
