@@ -47,6 +47,13 @@ http://127.0.0.1:8080/v1/chat/completions
 
 ```
 
+## Admin API docs
+https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md
+
+## API usage docs
+https://platform.openai.com/docs/api-reference/chat
+
+
 ## Docker compose
 
 [Hub address](https://hub.docker.com/repository/docker/acheong08/chatgpt-to-api/general)
@@ -71,7 +78,3 @@ services:
       # You can get your PUID for Plus account from the following link: https://chat.openai.com/api/auth/session.
       PUID: xxx
 ```
-
-## WHERE ARE MY API DOCS?
-Just use [OpenAI's](https://platform.openai.com/docs/api-reference/chat)...
-
