@@ -1,8 +1,6 @@
 # ChatGPT-to-API
 Create a fake API using ChatGPT's website
 
-## A fork. For personal use. Check upstream for details.
-
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
 **When calling the API, you must include the authorization parameter in the request header: `'Authorization':'Bearer ' + accessToken`.**
@@ -16,24 +14,24 @@ Create a fake API using ChatGPT's website
 ```bash
 docker build -t chatgpt-to-api .
 
-# 后台运行
+# Running the API
 docker run --name chatgpttoapi -d -p 127.0.0.1:8080:8080 chatgpt-to-api
 
-# API地址
+# API path
 http://127.0.0.1:8080/v1/chat/completions
 
 ```
 
 ## Docker compose
 
-[Hub 地址](https://hub.docker.com/repository/docker/huangzhenting/chatgpt-to-api/general)
+[Hub address](https://hub.docker.com/repository/docker/acheong08/chatgpt-to-api/general)
 
 ```yml
 version: '3'
 
 services:
   app:
-    image: huangzhenting/chatgpt-to-api # 总是使用latest,更新时重新pull该tag镜像即可
+    image: acheong08/chatgpt-to-api # Use latest tag
     container_name: chatgpttoapi
     restart: unless-stopped
     ports:
