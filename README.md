@@ -3,9 +3,9 @@ Create a fake API using ChatGPT's website
 
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
-**You can get your accessToken from the following link: [ChatGPT](https://chat.openai.com/api/auth/session)**
-
-**This API can be used with the project [BetterChatGPT](https://github.com/huangzt/BetterChatGPT)**
+## Setup
+Access token retrieval has been automated:
+https://github.com/acheong08/ChatGPT-to-API/tree/master/tools/authenticator
 
 ## Docker build & Run
 
