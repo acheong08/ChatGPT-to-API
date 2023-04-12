@@ -4,8 +4,35 @@ Create a fake API using ChatGPT's website
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
 ## Setup
+
+### Authentication
 Access token retrieval has been automated:
 https://github.com/acheong08/ChatGPT-to-API/tree/master/tools/authenticator
+
+Converting from a newline delimited list of access tokens to `access_tokens.json`
+```bash
+#!/bin/bash     
+
+START="["
+END="]"
+
+TOKENS=""
+
+while read -r line; do
+  if [ -z "$TOKENS" ]; then
+    TOKENS="\"$line\""
+  else
+    TOKENS+=",\"$line\""
+  fi
+done < access_tokens.txt
+
+echo "$START$TOKENS$END" > access_tokens.json
+```
+
+### Cloudflare annoyances
+`export PUID="user-..."`
+or
+`export API_REVERSE_PROXY="https://bypass.churchless.tech/api/conversation"`
 
 ## Docker build & Run
 
