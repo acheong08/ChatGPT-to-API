@@ -82,7 +82,20 @@ func nightmare(c *gin.Context) {
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt.ConvertAPIRequest(original_request)
 	// c.JSON(200, chatgpt_request)
-	response, err := chatgpt.SendRequest(translated_request, &PUID, ACCESS_TOKENS.GetToken())
+
+	authHeader := c.GetHeader("Authorization")
+	token := ACCESS_TOKENS.GetToken()
+	if authHeader != "" {
+		// 如果Authorization头不为空，则提取其中的token
+		// 首先将Bearer前缀替换为空字符串
+		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
+		if customAccessToken != "" {
+			token = customAccessToken
+			println("customAccessToken set:" + customAccessToken)
+		}
+	}
+
+	response, err := chatgpt.SendRequest(translated_request, &PUID, token)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "error sending request",
