@@ -86,8 +86,6 @@ func nightmare(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	token := ACCESS_TOKENS.GetToken()
 	if authHeader != "" {
-		// 如果Authorization头不为空，则提取其中的token
-		// 首先将Bearer前缀替换为空字符串
 		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
 		if customAccessToken != "" {
 			token = customAccessToken
