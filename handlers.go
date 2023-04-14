@@ -88,15 +88,15 @@ func nightmare(c *gin.Context) {
 	translated_request := chatgpt.ConvertAPIRequest(original_request)
 	// c.JSON(200, chatgpt_request)
 
-	authHeader := c.GetHeader("Authorization")
+	// authHeader := c.GetHeader("Authorization")
 	token := ACCESS_TOKENS.GetToken()
-	if authHeader != "" {
-		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
-		if customAccessToken != "" {
-			token = customAccessToken
-			println("customAccessToken set:" + customAccessToken)
-		}
-	}
+	// if authHeader != "" {
+	// 	customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
+	// 	if customAccessToken != "" {
+	// 		token = customAccessToken
+	// 		println("customAccessToken set:" + customAccessToken)
+	// 	}
+	// }
 
 	response, err := chatgpt.SendRequest(translated_request, &PUID, token)
 	if err != nil {
