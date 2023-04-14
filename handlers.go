@@ -8,6 +8,7 @@ import (
 	typings "freechatgpt/internal/typings"
 	"freechatgpt/internal/typings/responses"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,8 @@ func puidHandler(c *gin.Context) {
 		return
 	}
 	PUID = puid.PUID
+	// Set environment variable
+	os.Setenv("PUID", PUID)
 	c.String(200, "puid updated")
 }
 func passwordHandler(c *gin.Context) {
@@ -39,6 +42,8 @@ func passwordHandler(c *gin.Context) {
 		return
 	}
 	ADMIN_PASSWORD = password.Password
+	// Set environment variable
+	os.Setenv("ADMIN_PASSWORD", ADMIN_PASSWORD)
 	c.String(200, "password updated")
 }
 
