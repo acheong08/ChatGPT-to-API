@@ -139,7 +139,6 @@ func nightmare(c *gin.Context) {
 			var original_response responses.Data
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
-				println(line)
 				continue
 			}
 			if original_response.Error != nil {
