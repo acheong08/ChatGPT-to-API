@@ -107,8 +107,15 @@ func nightmare(c *gin.Context) {
 	}
 	defer response.Body.Close()
 	if response.StatusCode != 200 {
+		// Try read response body as JSON
+		var error_response map[string]interface{}
+		err = json.NewDecoder(response.Body).Decode(&error_response)
+		if err != nil {
+			c.JSON(response.StatusCode, err)
+			return
+		}
 		c.JSON(response.StatusCode, gin.H{
-			"error": "error sending request",
+			"error": "error sending request", "details": error_response,
 		})
 		return
 	}
