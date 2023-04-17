@@ -27,13 +27,11 @@ var (
 func SendRequest(message typings.ChatGPTRequest, puid *string, access_token string) (*http.Response, error) {
 	if http_proxy != "" {
 		client.SetProxy(http_proxy)
-		println("Proxy set:" + http_proxy)
 	}
 
 	apiUrl := "https://chat.openai.com/backend-api/conversation"
 	if API_REVERSE_PROXY != "" {
 		apiUrl = API_REVERSE_PROXY
-		println("API_REVERSE_PROXY set:" + API_REVERSE_PROXY)
 	}
 
 	// JSONify the body and add it to the request
