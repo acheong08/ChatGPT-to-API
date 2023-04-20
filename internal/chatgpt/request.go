@@ -20,6 +20,8 @@ var (
 		tls_client.WithClientProfile(tls_client.Chrome_110),
 		tls_client.WithNotFollowRedirects(),
 		tls_client.WithCookieJar(jar), // create cookieJar instance and pass it as argument
+		// Disable SSL verification
+		tls_client.WithInsecureSkipVerify(),
 	}
 	client, _ = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
 	// http_proxy        = os.Getenv("http_proxy")
