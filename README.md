@@ -33,9 +33,9 @@ echo "$START$TOKENS$END" > access_tokens.json
 ```
 
 ### Cloudflare annoyances
-`export PUID="user-..."`
+Proxy used by default
 or
-`export API_REVERSE_PROXY="https://bypass.churchless.tech/api/conversation"`
+`export API_REVERSE_PROXY="https://your.own.proxy.com/api/conversation"`
 
 ## Docker build & Run
 
@@ -75,9 +75,5 @@ services:
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 8080
       ADMIN_PASSWORD: TotallySecurePassword
-      # Reverse Proxy - Available on accessToken
-      API_REVERSE_PROXY: https://bypass.churchless.tech/api/conversation
-      # If the parameter API_REVERSE_PROXY is empty, the default request URL is https://chat.openai.com/backend-api/conversation, and the PUID is required.
-      # You can get your PUID for Plus account from the following link: https://chat.openai.com/api/auth/session.
-      PUID: xxx
+      # If the parameter API_REVERSE_PROXY is empty, the default request URL is https://ai.fakeopen.com/api/conversation
 ```
