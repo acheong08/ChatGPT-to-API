@@ -5,3 +5,4 @@ tools/authenticator/authenticated_accounts.txt
 tools/authenticator/access_tokens.txt
 *.txt
 access_tokens.json
+freechatgpt

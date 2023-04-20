@@ -3,7 +3,7 @@ package chatgpt
 import (
 	"bytes"
 	"encoding/json"
-	"math/rand"
+	"os"
 
 	typings "freechatgpt/internal/typings"
 
@@ -11,7 +11,7 @@ import (
 	tls_client "github.com/bogdanfinn/tls-client"
 )
 
-var proxies []string
+// var proxies []string
 
 var (
 	jar     = tls_client.NewCookieJar()
@@ -23,7 +23,7 @@ var (
 	}
 	client, _ = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
 	// http_proxy        = os.Getenv("http_proxy")
-	// API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
+	API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
 )
 
 // func init() {
@@ -40,9 +40,9 @@ var (
 // 	}
 // }
 
-func random_int(min int, max int) int {
-	return min + rand.Intn(max-min)
-}
+// func random_int(min int, max int) int {
+// 	return min + rand.Intn(max-min)
+// }
 
 func SendRequest(message typings.ChatGPTRequest, puid *string, access_token string) (*http.Response, error) {
 	// if http_proxy != "" && len(proxies) > 0 {
@@ -54,9 +54,9 @@ func SendRequest(message typings.ChatGPTRequest, puid *string, access_token stri
 	// }
 
 	apiUrl := "https://ai.fakeopen.com/api/conversation"
-	// if API_REVERSE_PROXY != "" {
-	// 	apiUrl = API_REVERSE_PROXY
-	// }
+	if API_REVERSE_PROXY != "" {
+		apiUrl = API_REVERSE_PROXY
+	}
 	println(apiUrl)
 
 	// JSONify the body and add it to the request
