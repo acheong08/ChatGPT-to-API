@@ -4,13 +4,17 @@ import "github.com/google/uuid"
 
 type chatgpt_message struct {
 	ID      uuid.UUID       `json:"id"`
-	Role    string          `json:"role"`
 	Content chatgpt_content `json:"content"`
 }
 
 type chatgpt_content struct {
-	ContentType string   `json:"content_type"`
-	Parts       []string `json:"parts"`
+	Author      chatgpt_author `json:"author"`
+	ContentType string         `json:"content_type"`
+	Parts       []string       `json:"parts"`
+}
+
+type chatgpt_author struct {
+	Role string `json:"role"`
 }
 
 type ChatGPTRequest struct {
@@ -31,7 +35,6 @@ func NewChatGPTRequest() ChatGPTRequest {
 func (c *ChatGPTRequest) AddMessage(role string, content string) {
 	c.Messages = append(c.Messages, chatgpt_message{
 		ID:      uuid.New(),
-		Role:    role,
-		Content: chatgpt_content{ContentType: "text", Parts: []string{content}},
+		Content: chatgpt_content{Author: chatgpt_author{Role: role}, ContentType: "text", Parts: []string{content}},
 	})
 }
