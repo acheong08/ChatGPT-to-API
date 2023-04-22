@@ -80,7 +80,7 @@ func SendRequest(message typings.ChatMessage) (*http.Response, error) {
 	}
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
-	request.Header.Set("Accept", "*/*")
+	request.Header.Set("Accept", "text/event-stream")
 	if err != nil {
 		return &http.Response{}, err
 	}

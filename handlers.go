@@ -78,16 +78,16 @@ func nightmare(c *gin.Context) {
 		})
 		return
 	}
-	// Get response body
-	fulltext, err := io.ReadAll(response.Body)
-	if err != nil {
-		c.JSON(500, gin.H{
-			"error": "error reading response",
-		})
-		return
-	}
 
 	if !original_request.Stream {
+		// Get response body
+		fulltext, err := io.ReadAll(response.Body)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "error reading response",
+			})
+			return
+		}
 		// Set response type to json
 		c.Header("Content-Type", "application/json")
 		full_response := responses.NewChatCompletion(string(fulltext))
@@ -99,16 +99,33 @@ func nightmare(c *gin.Context) {
 	} else {
 		// Set response type to text/event-stream
 		c.Header("Content-Type", "text/event-stream")
-		completion_chunk := responses.NewChatCompletionChunk(string(fulltext))
-		// completion chunk to json string
-		json_string, err := json.Marshal(completion_chunk)
-		if err != nil {
-			c.JSON(500, gin.H{
-				"error": "error converting response",
-			})
-			return
+		// Reader
+		reader := bufio.NewReader(response.Body)
+		// Loop through the response
+		for {
+			chunk := make([]byte, 1024)
+			n, err := reader.Read(chunk)
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+				c.JSON(500, gin.H{
+					"error": "error reading response",
+				})
+				return
+			}
+			// Convert chunk to string
+			chunk_string := string(chunk[:n])
+			// Convert chunk to json string
+			json_string, err := json.Marshal(responses.NewChatCompletionChunk(chunk_string))
+			if err != nil {
+				c.JSON(500, gin.H{
+					"error": "error converting response",
+				})
+				return
+			}
+			c.String(200, "data: "+string(json_string)+"\n\n")
 		}
-		c.String(200, "data: "+string(json_string)+"\n\n")
 	}
 	c.String(200, "data: [DONE]")
 

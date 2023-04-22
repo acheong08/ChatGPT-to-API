@@ -40,7 +40,7 @@ func generateRandomInt64() int64 {
 func NewChatMessage() ChatMessage {
 	return ChatMessage{
 		Action:    "_ask",
-		Model:     "text-gpt-0004-render-sha-0314",
+		Model:     "text-gpt-0040-render-sha-0",
 		Jailbreak: "default",
 		Meta: metadata{
 			ID: generateRandomInt64(),
