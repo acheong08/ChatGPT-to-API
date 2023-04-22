@@ -39,7 +39,6 @@ func tokensHandler(c *gin.Context) {
 		c.String(400, "tokens not provided")
 		return
 	}
-	auth_cookie = auth_req.AuthCookie
 	c.String(200, "cookies updated")
 }
 func optionsHandler(c *gin.Context) {
