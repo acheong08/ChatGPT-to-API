@@ -1,41 +1,66 @@
 package types
 
-import "github.com/google/uuid"
+import (
+	"math/rand"
 
-type chatgpt_message struct {
-	ID      uuid.UUID       `json:"id"`
-	Author  chatgpt_author  `json:"author"`
-	Content chatgpt_content `json:"content"`
+	"github.com/google/uuid"
+)
+
+type ChatMessage struct {
+	ConversationID uuid.UUID `json:"conversation_id"`
+	Action         string    `json:"action"`
+	Model          string    `json:"model"`
+	Jailbreak      string    `json:"jailbreak"`
+	Meta           metadata  `json:"meta"`
 }
 
-type chatgpt_content struct {
-	ContentType string   `json:"content_type"`
-	Parts       []string `json:"parts"`
+type metadata struct {
+	ID      int64           `json:"id"`
+	Content message_content `json:"content"`
 }
 
-type chatgpt_author struct {
-	Role string `json:"role"`
+type message_content struct {
+	Conversation   []conversation_message `json:"conversation"`
+	InternetAccess bool                   `json:"internet_access"`
+	ContentType    string                 `json:"content_type"`
+	Parts          []message_part         `json:"parts"`
 }
 
-type ChatGPTRequest struct {
-	Action          string            `json:"action"`
-	Messages        []chatgpt_message `json:"messages"`
-	ParentMessageID string            `json:"parent_message_id,omitempty"`
-	Model           string            `json:"model"`
+type conversation_message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
 
-func NewChatGPTRequest() ChatGPTRequest {
-	return ChatGPTRequest{
-		Action:          "next",
-		ParentMessageID: uuid.NewString(),
-		Model:           "text-davinci-002-render-sha",
+type message_part struct {
+	Content string `json:"content"`
+	Role    string `json:"role"`
+}
+
+func generateRandomInt64() int64 {
+	return rand.Int63()
+}
+
+func NewChatMessage() ChatMessage {
+	return ChatMessage{
+		ConversationID: uuid.New(),
+		Action:         "_ask",
+		Model:          "text-gpt-0004-render-sha-0314",
+		Jailbreak:      "default",
+		Meta: metadata{
+			ID: generateRandomInt64(),
+			Content: message_content{
+				Conversation:   []conversation_message{},
+				InternetAccess: false,
+				ContentType:    "text",
+				Parts:          []message_part{},
+			},
+		},
 	}
 }
 
-func (c *ChatGPTRequest) AddMessage(role string, content string) {
-	c.Messages = append(c.Messages, chatgpt_message{
-		ID:      uuid.New(),
-		Author:  chatgpt_author{Role: role},
-		Content: chatgpt_content{ContentType: "text", Parts: []string{content}},
+func (chat ChatMessage) AddMessage(role string, content string) {
+	chat.Meta.Content.Conversation = append(chat.Meta.Content.Conversation, conversation_message{
+		Role:    role,
+		Content: content,
 	})
 }

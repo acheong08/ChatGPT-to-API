@@ -26,9 +26,8 @@ var (
 		// Disable SSL verification
 		tls_client.WithInsecureSkipVerify(),
 	}
-	client, _         = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
-	http_proxy        = os.Getenv("http_proxy")
-	API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
+	client, _  = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
+	http_proxy = os.Getenv("http_proxy")
 )
 
 func init() {
@@ -58,7 +57,7 @@ func random_int(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func SendRequest(message typings.ChatGPTRequest, puid *string, access_token string) (*http.Response, error) {
+func SendRequest(message typings.ChatMessage, access_token string) (*http.Response, error) {
 	if http_proxy != "" && len(proxies) > 0 {
 		client.SetProxy(http_proxy)
 	}
@@ -67,10 +66,7 @@ func SendRequest(message typings.ChatGPTRequest, puid *string, access_token stri
 		client.SetProxy(proxies[random_int(0, len(proxies)-1)])
 	}
 
-	apiUrl := "https://ai.fakeopen.com/api/conversation"
-	if API_REVERSE_PROXY != "" {
-		apiUrl = API_REVERSE_PROXY
-	}
+	apiUrl := "https://play.vercel.ai/api/generate"
 
 	// JSONify the body and add it to the request
 	body_json, err := json.Marshal(message)
@@ -85,12 +81,11 @@ func SendRequest(message typings.ChatGPTRequest, puid *string, access_token stri
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
 	request.Header.Set("Accept", "*/*")
-	request.AddCookie(&http.Cookie{
-		Name:  "_puid",
-		Value: *puid,
-	})
 	if access_token != "" {
-		request.Header.Set("Authorization", "Bearer "+access_token)
+		request.AddCookie(&http.Cookie{
+			Name:  "user_session",
+			Value: access_token,
+		})
 	}
 	if err != nil {
 		return &http.Response{}, err

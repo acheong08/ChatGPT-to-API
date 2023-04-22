@@ -4,32 +4,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"freechatgpt/internal/chatgpt"
-	"freechatgpt/internal/tokens"
 	typings "freechatgpt/internal/typings"
 	"freechatgpt/internal/typings/responses"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func puidHandler(c *gin.Context) {
-	// Get the puid from the request (json) and update the puid
-	type puid_struct struct {
-		PUID string `json:"puid"`
-	}
-	var puid puid_struct
-	err := c.BindJSON(&puid)
-	if err != nil {
-		c.String(400, "puid not provided")
-		return
-	}
-	PUID = puid.PUID
-	// Set environment variable
-	os.Setenv("PUID", PUID)
-	c.String(200, "puid updated")
-}
 func passwordHandler(c *gin.Context) {
 	// Get the password from the request (json) and update the password
 	type password_struct struct {
@@ -49,14 +31,17 @@ func passwordHandler(c *gin.Context) {
 
 func tokensHandler(c *gin.Context) {
 	// Get the request_tokens from the request (json) and update the request_tokens
-	var request_tokens []string
-	err := c.BindJSON(&request_tokens)
+	type auth struct {
+		AuthCookie string `json:"auth_cookie"`
+	}
+	var auth_req auth
+	err := c.BindJSON(&auth_req)
 	if err != nil {
 		c.String(400, "tokens not provided")
 		return
 	}
-	ACCESS_TOKENS = tokens.NewAccessToken(request_tokens)
-	c.String(200, "tokens updated")
+	auth_cookie = auth_req.AuthCookie
+	c.String(200, "cookies updated")
 }
 func optionsHandler(c *gin.Context) {
 	// Set headers for CORS
@@ -77,28 +62,10 @@ func nightmare(c *gin.Context) {
 		})
 		return
 	}
-	// Throw error when model contains gpt-4
-	if strings.Contains(original_request.Model, "gpt-4") {
-		c.JSON(400, gin.H{
-			"error": "gpt-4 is not supported",
-		})
-		return
-	}
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt.ConvertAPIRequest(original_request)
-	// c.JSON(200, chatgpt_request)
 
-	// authHeader := c.GetHeader("Authorization")
-	token := ACCESS_TOKENS.GetToken()
-	// if authHeader != "" {
-	// 	customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
-	// 	if customAccessToken != "" {
-	// 		token = customAccessToken
-	// 		println("customAccessToken set:" + customAccessToken)
-	// 	}
-	// }
-
-	response, err := chatgpt.SendRequest(translated_request, &PUID, token)
+	response, err := chatgpt.SendRequest(translated_request, auth_cookie)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "error sending request",
@@ -122,7 +89,7 @@ func nightmare(c *gin.Context) {
 	// Create a bufio.Reader from the response body
 	reader := bufio.NewReader(response.Body)
 
-	var fulltext string
+	var fulltext string = ""
 
 	// Read the response byte by byte until a newline character is encountered
 	if original_request.Stream {
@@ -140,60 +107,39 @@ func nightmare(c *gin.Context) {
 			}
 			return
 		}
-		if len(line) < 6 {
+		if len(line) < 3 {
 			continue
 		}
-		// Remove "data: " from the beginning of the line
-		line = line[6:]
-		// Check if line starts with [DONE]
-		if !strings.HasPrefix(line, "[DONE]") {
-			// Parse the line as JSON
-			var original_response responses.Data
-			err = json.Unmarshal([]byte(line), &original_response)
-			if err != nil {
-				continue
-			}
-			if original_response.Error != nil {
-				return
-			}
-			if original_response.Message.Content.Parts[0] == "" || original_response.Message.Author.Role != "assistant" {
-				continue
-			}
-			if original_response.Message.Metadata.Timestamp == "absolute" {
-				continue
-			}
-			tmp_fulltext := original_response.Message.Content.Parts[0]
-			original_response.Message.Content.Parts[0] = strings.ReplaceAll(original_response.Message.Content.Parts[0], fulltext, "")
-			translated_response := responses.NewChatCompletionChunk(original_response.Message.Content.Parts[0])
+		// Remove the first and last character from the line
+		line = line[1 : len(line)-1]
 
-			// Stream the response to the client
-			response_string, err := json.Marshal(translated_response)
-			if err != nil {
-				continue
-			}
-			if original_request.Stream {
-				_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
-				if err != nil {
-					return
-				}
-			}
+		translated_response := responses.NewChatCompletionChunk(line)
 
-			// Flush the response writer buffer to ensure that the client receives each line as it's written
-			c.Writer.Flush()
-			fulltext = tmp_fulltext
-		} else {
-			if !original_request.Stream {
-				full_response := responses.NewChatCompletion(fulltext)
-				if err != nil {
-					return
-				}
-				c.JSON(200, full_response)
-				return
-			}
-			c.String(200, "data: [DONE]")
-			break
-
+		// Stream the response to the client
+		response_string, err := json.Marshal(translated_response)
+		if err != nil {
+			continue
 		}
+		if original_request.Stream {
+			_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
+			if err != nil {
+				return
+			}
+		}
+
+		// Flush the response writer buffer to ensure that the client receives each line as it's written
+		c.Writer.Flush()
+		fulltext = fulltext + line
 	}
+
+	if !original_request.Stream {
+		full_response := responses.NewChatCompletion(fulltext)
+		if err != nil {
+			return
+		}
+		c.JSON(200, full_response)
+		return
+	}
+	c.String(200, "data: [DONE]")
 
 }
