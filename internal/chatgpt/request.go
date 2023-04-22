@@ -66,7 +66,7 @@ func SendRequest(message typings.ChatMessage) (*http.Response, error) {
 		client.SetProxy(proxies[random_int(0, len(proxies)-1)])
 	}
 
-	apiUrl := "https://chat.shuttle.rip/backend-api/v2/conversation"
+	apiUrl := "https://backend.cwumsy.cc/backend-api/v2/conversation"
 
 	// JSONify the body and add it to the request
 	body_json, err := json.Marshal(message)
