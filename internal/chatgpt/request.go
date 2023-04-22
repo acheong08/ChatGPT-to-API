@@ -71,7 +71,6 @@ func SendRequest(message typings.ChatGPTRequest, puid *string, access_token stri
 	if API_REVERSE_PROXY != "" {
 		apiUrl = API_REVERSE_PROXY
 	}
-	println(apiUrl)
 
 	// JSONify the body and add it to the request
 	body_json, err := json.Marshal(message)
