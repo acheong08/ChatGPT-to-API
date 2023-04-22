@@ -1,4 +1,4 @@
-module freechatgpt
+module freegpt4
 
 go 1.20
 

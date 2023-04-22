@@ -1,7 +1,7 @@
 package chatgpt
 
 import (
-	typings "freechatgpt/internal/typings"
+	typings "freegpt4/internal/typings"
 )
 
 func ConvertAPIRequest(api_request typings.APIRequest) typings.ChatMessage {

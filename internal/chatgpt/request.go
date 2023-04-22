@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	typings "freechatgpt/internal/typings"
+	typings "freegpt4/internal/typings"
 
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"

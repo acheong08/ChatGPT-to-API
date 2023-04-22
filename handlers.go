@@ -3,9 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/json"
-	"freechatgpt/internal/chatgpt"
-	typings "freechatgpt/internal/typings"
-	"freechatgpt/internal/typings/responses"
+	"freegpt4/internal/chatgpt"
+	typings "freegpt4/internal/typings"
+	"freegpt4/internal/typings/responses"
 	"io"
 	"os"
 
