@@ -1,8 +1,10 @@
 package chatgpt
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"math/rand"
 	"os"
 
 	typings "freechatgpt/internal/typings"
@@ -11,7 +13,7 @@ import (
 	tls_client "github.com/bogdanfinn/tls-client"
 )
 
-// var proxies []string
+var proxies []string
 
 var (
 	jar     = tls_client.NewCookieJar()
@@ -23,37 +25,37 @@ var (
 		// Disable SSL verification
 		tls_client.WithInsecureSkipVerify(),
 	}
-	client, _ = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
-	// http_proxy        = os.Getenv("http_proxy")
+	client, _         = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
+	http_proxy        = os.Getenv("http_proxy")
 	API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
 )
 
-// func init() {
-// 	// Check for proxies.txt
-// 	if _, err := os.Stat("proxies.txt"); err == nil {
-// 		// Each line is a proxy, put in proxies array
-// 		file, _ := os.Open("proxies.txt")
-// 		defer file.Close()
-// 		scanner := bufio.NewScanner(file)
-// 		for scanner.Scan() {
-// 			proxy := "socks5://" + scanner.Text()
-// 			proxies = append(proxies, proxy)
-// 		}
-// 	}
-// }
+func init() {
+	// Check for proxies.txt
+	if _, err := os.Stat("proxies.txt"); err == nil {
+		// Each line is a proxy, put in proxies array
+		file, _ := os.Open("proxies.txt")
+		defer file.Close()
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			proxy := "socks5://" + scanner.Text()
+			proxies = append(proxies, proxy)
+		}
+	}
+}
 
-// func random_int(min int, max int) int {
-// 	return min + rand.Intn(max-min)
-// }
+func random_int(min int, max int) int {
+	return min + rand.Intn(max-min)
+}
 
 func SendRequest(message typings.ChatGPTRequest, puid *string, access_token string) (*http.Response, error) {
-	// if http_proxy != "" && len(proxies) > 0 {
-	// 	client.SetProxy(http_proxy)
-	// }
-	// // Take random proxy from proxies.txt
-	// if len(proxies) > 0 {
-	// 	client.SetProxy(proxies[random_int(0, len(proxies)-1)])
-	// }
+	if http_proxy != "" && len(proxies) > 0 {
+		client.SetProxy(http_proxy)
+	}
+	// Take random proxy from proxies.txt
+	if len(proxies) > 0 {
+		client.SetProxy(proxies[random_int(0, len(proxies)-1)])
+	}
 
 	apiUrl := "https://ai.fakeopen.com/api/conversation"
 	if API_REVERSE_PROXY != "" {
