@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"freechatgpt/internal/tokens"
 	"os"
+	"strings"
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,11 @@ func init() {
 	}
 	if PORT == "" {
 		PORT = "8080"
+	}
+	accessToken := os.Getenv("ACCESS_TOKENS")
+	if accessToken != "" {
+		accessTokens := strings.Split(accessToken, ",")
+		ACCESS_TOKENS = tokens.NewAccessToken(accessTokens)
 	}
 	// Check if access_tokens.json exists
 	if _, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
