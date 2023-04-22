@@ -99,7 +99,7 @@ func nightmare(c *gin.Context) {
 	} else {
 		// Set response type to text/event-stream
 		c.Header("Content-Type", "text/event-stream")
-		completion_chunk := responses.NewChatCompletion(string(fulltext))
+		completion_chunk := responses.NewChatCompletionChunk(string(fulltext))
 		// completion chunk to json string
 		json_string, err := json.Marshal(completion_chunk)
 		if err != nil {
