@@ -24,7 +24,7 @@ func NewChatCompletionChunk(text string) ChatCompletionChunk {
 		ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
 		Object:  "chat.completion.chunk",
 		Created: 0,
-		Model:   "gpt-3.5-turbo-0301",
+		Model:   "gpt-4",
 		Choices: []Choices{
 			{
 				Index: 0,
