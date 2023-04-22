@@ -46,6 +46,8 @@ func init() {
 				proxy = "socks5://" + proxy
 			} else if len(proxy_parts) == 4 {
 				proxy = "socks5://" + proxy_parts[2] + ":" + proxy_parts[3] + "@" + proxy_parts[0] + ":" + proxy_parts[1]
+			} else {
+				continue
 			}
 			proxies = append(proxies, proxy)
 		}
