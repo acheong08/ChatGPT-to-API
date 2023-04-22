@@ -14,6 +14,7 @@ var auth_cookie string
 func init() {
 	HOST = os.Getenv("SERVER_HOST")
 	PORT = os.Getenv("SERVER_PORT")
+	auth_cookie = os.Getenv("AUTH_COOKIE")
 	if HOST == "" {
 		HOST = "127.0.0.1"
 	}
