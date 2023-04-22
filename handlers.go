@@ -88,6 +88,8 @@ func nightmare(c *gin.Context) {
 	}
 
 	if !original_request.Stream {
+		// Set response type to json
+		c.Header("Content-Type", "application/json")
 		full_response := responses.NewChatCompletion(string(fulltext))
 		if err != nil {
 			return
@@ -95,6 +97,8 @@ func nightmare(c *gin.Context) {
 		c.JSON(200, full_response)
 		return
 	} else {
+		// Set response type to text/event-stream
+		c.Header("Content-Type", "text/event-stream")
 		completion_chunk := responses.NewChatCompletion(string(fulltext))
 		// completion chunk to json string
 		json_string, err := json.Marshal(completion_chunk)
