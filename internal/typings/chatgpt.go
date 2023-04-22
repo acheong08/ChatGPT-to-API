@@ -46,7 +46,7 @@ func NewChatMessage() ChatMessage {
 			ID: generateRandomInt64(),
 			Content: message_content{
 				Conversation:   []conversation_message{},
-				InternetAccess: false,
+				InternetAccess: true,
 				ContentType:    "text",
 				Parts:          []message_part{},
 			},
