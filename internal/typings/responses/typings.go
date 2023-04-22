@@ -53,6 +53,25 @@ type Delta struct {
 	Role    string `json:"role"`
 }
 
+func NewChatCompletionChunk(text string) ChatCompletionChunk {
+	return ChatCompletionChunk{
+		ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
+		Object:  "chat.completion.chunk",
+		Created: 0,
+		Model:   "gpt-3.5-turbo-0301",
+		Choices: []Choices{
+			{
+				Index: 0,
+				Delta: Delta{
+					Content: text,
+					Role:    "assistant",
+				},
+				FinishReason: nil,
+			},
+		},
+	}
+}
+
 type ChatCompletion struct {
 	ID      string   `json:"id"`
 	Object  string   `json:"object"`
@@ -74,4 +93,28 @@ type usage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
 	TotalTokens      int `json:"total_tokens"`
+}
+
+func NewChatCompletion(full_test string) ChatCompletion {
+	return ChatCompletion{
+		ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
+		Object:  "chat.completion",
+		Created: int64(0),
+		Model:   "gpt-3.5-turbo-0301",
+		Usage: usage{
+			PromptTokens:     0,
+			CompletionTokens: 0,
+			TotalTokens:      0,
+		},
+		Choices: []Choice{
+			{
+				Message: Msg{
+					Content: full_test,
+					Role:    "assistant",
+				},
+				Index:        0,
+				FinishReason: "stop",
+			},
+		},
+	}
 }

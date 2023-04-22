@@ -164,23 +164,7 @@ func nightmare(c *gin.Context) {
 			}
 			tmp_fulltext := original_response.Message.Content.Parts[0]
 			original_response.Message.Content.Parts[0] = strings.ReplaceAll(original_response.Message.Content.Parts[0], fulltext, "")
-			var delta responses.Delta = responses.Delta{
-				Content: original_response.Message.Content.Parts[0],
-				Role:    "assistant",
-			}
-			translated_response := responses.ChatCompletionChunk{
-				ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
-				Object:  "chat.completion.chunk",
-				Created: int64(original_response.Message.CreateTime),
-				Model:   "gpt-3.5-turbo-0301",
-				Choices: []responses.Choices{
-					{
-						Index:        0,
-						Delta:        delta,
-						FinishReason: nil,
-					},
-				},
-			}
+			translated_response := responses.NewChatCompletionChunk(original_response.Message.Content.Parts[0])
 
 			// Stream the response to the client
 			response_string, err := json.Marshal(translated_response)
@@ -199,22 +183,7 @@ func nightmare(c *gin.Context) {
 			fulltext = tmp_fulltext
 		} else {
 			if !original_request.Stream {
-				full_response := responses.ChatCompletion{
-					ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
-					Object:  "chat.completion",
-					Created: int64(0),
-					Model:   "gpt-3.5-turbo-0301",
-					Choices: []responses.Choice{
-						{
-							Message: responses.Msg{
-								Content: fulltext,
-								Role:    "assistant",
-							},
-							Index:        0,
-							FinishReason: "stop",
-						},
-					},
-				}
+				full_response := responses.NewChatCompletion(fulltext)
 				if err != nil {
 					return
 				}
