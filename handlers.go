@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"freechatgpt/internal/chatgpt"
 	typings "freechatgpt/internal/typings"
 	"freechatgpt/internal/typings/responses"
@@ -93,6 +94,17 @@ func nightmare(c *gin.Context) {
 		}
 		c.JSON(200, full_response)
 		return
+	} else {
+		completion_chunk := responses.NewChatCompletion(string(fulltext))
+		// completion chunk to json string
+		json_string, err := json.Marshal(completion_chunk)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "error converting response",
+			})
+			return
+		}
+		c.String(200, "data: "+string(json_string)+"\n\n")
 	}
 	c.String(200, "data: [DONE]")
 
