@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"math/rand"
 	"os"
+	"strings"
 
 	typings "freechatgpt/internal/typings"
 
@@ -38,7 +39,14 @@ func init() {
 		defer file.Close()
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			proxy := "socks5://" + scanner.Text()
+			// Split line by :
+			proxy := scanner.Text()
+			proxy_parts := strings.Split(proxy, ":")
+			if len(proxy_parts) == 2 {
+				proxy = "socks5://" + proxy
+			} else if len(proxy_parts) == 4 {
+				proxy = "socks5://" + proxy_parts[2] + ":" + proxy_parts[3] + "@" + proxy_parts[0] + ":" + proxy_parts[1]
+			}
 			proxies = append(proxies, proxy)
 		}
 	}
