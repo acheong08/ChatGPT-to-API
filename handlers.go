@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"freechatgpt/internal/chatgpt"
 	typings "freechatgpt/internal/typings"
 	"freechatgpt/internal/typings/responses"
@@ -65,7 +64,7 @@ func nightmare(c *gin.Context) {
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt.ConvertAPIRequest(original_request)
 
-	response, err := chatgpt.SendRequest(translated_request, auth_cookie)
+	response, err := chatgpt.SendRequest(translated_request)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "error sending request",
@@ -74,66 +73,22 @@ func nightmare(c *gin.Context) {
 	}
 	defer response.Body.Close()
 	if response.StatusCode != 200 {
-		// Try read response body as JSON
-		var error_response map[string]interface{}
-		err = json.NewDecoder(response.Body).Decode(&error_response)
-		if err != nil {
-			c.JSON(response.StatusCode, err)
-			return
-		}
 		c.JSON(response.StatusCode, gin.H{
-			"error": "error sending request", "details": error_response,
+			"error": "error sending request", "details": bufio.NewReader(response.Body),
 		})
 		return
 	}
-	// Create a bufio.Reader from the response body
-	reader := bufio.NewReader(response.Body)
-
-	var fulltext string = ""
-
-	// Read the response byte by byte until a newline character is encountered
-	if original_request.Stream {
-		// Response content type is text/event-stream
-		c.Header("Content-Type", "text/event-stream")
-	} else {
-		// Response content type is application/json
-		c.Header("Content-Type", "application/json")
-	}
-	for {
-		line, err := reader.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return
-		}
-		if len(line) < 3 {
-			continue
-		}
-		// Remove the first and last character from the line
-		line = line[1 : len(line)-1]
-
-		translated_response := responses.NewChatCompletionChunk(line)
-
-		// Stream the response to the client
-		response_string, err := json.Marshal(translated_response)
-		if err != nil {
-			continue
-		}
-		if original_request.Stream {
-			_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
-			if err != nil {
-				return
-			}
-		}
-
-		// Flush the response writer buffer to ensure that the client receives each line as it's written
-		c.Writer.Flush()
-		fulltext = fulltext + line
+	// Get response body
+	fulltext, err := io.ReadAll(response.Body)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": "error reading response",
+		})
+		return
 	}
 
 	if !original_request.Stream {
-		full_response := responses.NewChatCompletion(fulltext)
+		full_response := responses.NewChatCompletion(string(fulltext))
 		if err != nil {
 			return
 		}
