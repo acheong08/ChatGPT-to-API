@@ -103,7 +103,7 @@ func nightmare(c *gin.Context) {
 		reader := bufio.NewReader(response.Body)
 		// Loop through the response
 		for {
-			chunk := make([]byte, 1024)
+			chunk := make([]byte, 512)
 			n, err := reader.Read(chunk)
 			if err != nil {
 				if err == io.EOF {
