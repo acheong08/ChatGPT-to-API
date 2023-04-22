@@ -6,6 +6,7 @@ import (
 
 func ConvertAPIRequest(api_request typings.APIRequest) typings.ChatMessage {
 	chatgpt_request := typings.NewChatMessage()
+	chatgpt_request.Meta.Content.InternetAccess = api_request.Internet
 	for _, api_message := range api_request.Messages {
 		chatgpt_request.AddMessage(api_message.Role, api_message.Content)
 	}
