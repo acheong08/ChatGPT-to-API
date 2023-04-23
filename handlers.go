@@ -86,7 +86,10 @@ func nightmare(c *gin.Context) {
 	// }
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt.ConvertAPIRequest(original_request)
-	// c.JSON(200, chatgpt_request)
+
+	if original_request.Model == "gpt-4" {
+		translated_request.Model = "gpt-4"
+	}
 
 	// authHeader := c.GetHeader("Authorization")
 	token := ACCESS_TOKENS.GetToken()
