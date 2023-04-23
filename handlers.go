@@ -77,13 +77,13 @@ func nightmare(c *gin.Context) {
 		})
 		return
 	}
-	// Throw error when model contains gpt-4
-	if strings.Contains(original_request.Model, "gpt-4") {
-		c.JSON(400, gin.H{
-			"error": "gpt-4 is not supported",
-		})
-		return
-	}
+	// // Throw error when model contains gpt-4
+	// if strings.Contains(original_request.Model, "gpt-4") {
+	// 	c.JSON(400, gin.H{
+	// 		"error": "gpt-4 is not supported",
+	// 	})
+	// 	return
+	// }
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt.ConvertAPIRequest(original_request)
 	// c.JSON(200, chatgpt_request)
