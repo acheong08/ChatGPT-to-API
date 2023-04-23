@@ -40,10 +40,8 @@ func main() {
 
 func check_access(token string) bool {
 	print(".")
-	req, _ := http.NewRequest("GET", "https://chat.openai.com/backend-api/accounts/check", nil)
+	req, _ := http.NewRequest("GET", "https://bypass.churchless.tech/accounts/check", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
-	// Set _puid cookie
-	req.AddCookie(&http.Cookie{Name: "_puid", Value: os.Getenv("PUID")})
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
