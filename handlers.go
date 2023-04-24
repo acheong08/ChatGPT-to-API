@@ -168,7 +168,9 @@ func nightmare(c *gin.Context) {
 			tmp_fulltext := original_response.Message.Content.Parts[0]
 			original_response.Message.Content.Parts[0] = strings.ReplaceAll(original_response.Message.Content.Parts[0], fulltext, "")
 			translated_response := responses.NewChatCompletionChunk(original_response.Message.Content.Parts[0])
-
+			if original_request.Model != "" {
+				translated_response.Model = original_request.Model
+			}
 			// Stream the response to the client
 			response_string, err := json.Marshal(translated_response)
 			if err != nil {
@@ -187,6 +189,9 @@ func nightmare(c *gin.Context) {
 		} else {
 			if !original_request.Stream {
 				full_response := responses.NewChatCompletion(fulltext)
+				if original_request.Model != "" {
+					full_response.Model = original_request.Model
+				}
 				if err != nil {
 					return
 				}
