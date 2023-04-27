@@ -40,7 +40,7 @@ func main() {
 
 func check_access(token string) bool {
 	print(".")
-	req, _ := http.NewRequest("GET", "https://bypass.churchless.tech/accounts/check", nil)
+	req, _ := http.NewRequest("GET", "https://ai.fakeopen.com/api/accounts/check", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	client := &http.Client{}
 	resp, err := client.Do(req)
