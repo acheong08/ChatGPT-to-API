@@ -12,13 +12,11 @@ import (
 
 var HOST string
 var PORT string
-var PUID string
 var ACCESS_TOKENS tokens.AccessToken
 
 func init() {
 	HOST = os.Getenv("SERVER_HOST")
 	PORT = os.Getenv("SERVER_PORT")
-	PUID = os.Getenv("PUID")
 	if HOST == "" {
 		HOST = "127.0.0.1"
 	}
@@ -70,7 +68,6 @@ func main() {
 	admin_routes.Use(adminCheck)
 
 	/// Admin routes
-	admin_routes.PATCH("/puid", puidHandler)
 	admin_routes.PATCH("/password", passwordHandler)
 	admin_routes.PATCH("/tokens", adminCheck, tokensHandler)
 	/// Public routes

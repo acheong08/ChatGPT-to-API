@@ -14,22 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func puidHandler(c *gin.Context) {
-	// Get the puid from the request (json) and update the puid
-	type puid_struct struct {
-		PUID string `json:"puid"`
-	}
-	var puid puid_struct
-	err := c.BindJSON(&puid)
-	if err != nil {
-		c.String(400, "puid not provided")
-		return
-	}
-	PUID = puid.PUID
-	// Set environment variable
-	os.Setenv("PUID", PUID)
-	c.String(200, "puid updated")
-}
 func passwordHandler(c *gin.Context) {
 	// Get the password from the request (json) and update the password
 	type password_struct struct {
@@ -98,7 +82,7 @@ func nightmare(c *gin.Context) {
 	// 	}
 	// }
 
-	response, err := chatgpt.SendRequest(translated_request, &PUID, token)
+	response, err := chatgpt.SendRequest(translated_request, token)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "error sending request",

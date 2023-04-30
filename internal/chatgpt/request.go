@@ -58,7 +58,7 @@ func random_int(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func SendRequest(message typings.ChatGPTRequest, puid *string, access_token string) (*http.Response, error) {
+func SendRequest(message typings.ChatGPTRequest, access_token string) (*http.Response, error) {
 	if http_proxy != "" && len(proxies) > 0 {
 		client.SetProxy(http_proxy)
 	}
@@ -85,10 +85,6 @@ func SendRequest(message typings.ChatGPTRequest, puid *string, access_token stri
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
 	request.Header.Set("Accept", "*/*")
-	request.AddCookie(&http.Cookie{
-		Name:  "_puid",
-		Value: *puid,
-	})
 	if access_token != "" {
 		request.Header.Set("Authorization", "Bearer "+access_token)
 	}
