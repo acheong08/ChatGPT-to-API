@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/acheong08/OpenAIAuth/auth"
 )
@@ -97,7 +99,12 @@ func main() {
 
 	// Loop through each account
 	for _, account := range accounts {
-		println(proxies[0].Socks5URL())
+		if os.Getenv("CF_PROXY") != "" {
+			// exec warp-cli disconnect and connect
+			exec.Command("warp-cli", "disconnect").Run()
+			exec.Command("warp-cli", "connect").Run()
+			time.Sleep(5 * time.Second)
+		}
 		println(account.Email)
 		println(account.Password)
 		var proxy_url string
@@ -107,6 +114,7 @@ func main() {
 			proxy_url = proxies[0].Socks5URL()
 			// Push used proxy to the back of the list
 			proxies = append(proxies[1:], proxies[0])
+			println(proxies[0].Socks5URL())
 		}
 		authenticator := auth.NewAuthenticator(account.Email, account.Password, proxy_url)
 		err := authenticator.Begin()
@@ -114,6 +122,7 @@ func main() {
 			// println("Error: " + err.Details)
 			println("Location: " + err.Location)
 			println("Status code: " + fmt.Sprint(err.StatusCode))
+			println("Details: " + err.Details)
 			println("Embedded error: " + err.Error.Error())
 			return
 		}
