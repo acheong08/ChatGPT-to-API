@@ -22,6 +22,9 @@ type Proxy struct {
 
 func (p Proxy) Socks5URL() string {
 	// Returns proxy URL (socks5)
+	if p.User == "" && p.Pass == "" {
+		return fmt.Sprintf("socks5://%s:%s", p.IP, p.Port)
+	}
 	return fmt.Sprintf("socks5://%s:%s@%s:%s", p.User, p.Pass, p.IP, p.Port)
 }
 
@@ -63,13 +66,23 @@ func readProxies() []Proxy {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		// Split by :
-		line := strings.Split(scanner.Text(), ":")
-		// Create a proxy
-		proxy := Proxy{
-			IP:   line[0],
-			Port: line[1],
-			User: line[2],
-			Pass: line[3],
+		lines := strings.Split(scanner.Text(), ":")
+		var proxy Proxy
+		if len(lines) == 4 {
+			// Create a proxy
+			proxy = Proxy{
+				IP:   lines[0],
+				Port: lines[1],
+				User: lines[2],
+				Pass: lines[3],
+			}
+		} else if len(lines) == 2 {
+			proxy = Proxy{
+				IP:   lines[0],
+				Port: lines[1],
+			}
+		} else {
+			continue
 		}
 		// Append to proxies
 		proxies = append(proxies, proxy)
