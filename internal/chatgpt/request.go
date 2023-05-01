@@ -67,7 +67,7 @@ func SendRequest(message typings.ChatGPTRequest, access_token string) (*http.Res
 		client.SetProxy(proxies[random_int(0, len(proxies)-1)])
 	}
 
-	apiUrl := "https://bypass.churchless.tech/conversation"
+	apiUrl := "https://chat.openai.com/backend-api/conversation"
 	if API_REVERSE_PROXY != "" {
 		apiUrl = API_REVERSE_PROXY
 	}
