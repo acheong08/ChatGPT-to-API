@@ -11,8 +11,6 @@ import (
 	tls_client "github.com/bogdanfinn/tls-client"
 )
 
-var proxies []string
-
 var (
 	jar     = tls_client.NewCookieJar()
 	options = []tls_client.HttpClientOption{
