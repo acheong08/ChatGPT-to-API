@@ -100,9 +100,15 @@ func main() {
 		println(proxies[0].Socks5URL())
 		println(account.Email)
 		println(account.Password)
-		authenticator := auth.NewAuthenticator(account.Email, account.Password, proxies[0].Socks5URL())
-		// Push used proxy to the back of the list
-		proxies = append(proxies[1:], proxies[0])
+		var proxy_url string
+		if len(proxies) == 0 {
+			proxy_url = ""
+		} else {
+			proxy_url = proxies[0].Socks5URL()
+			// Push used proxy to the back of the list
+			proxies = append(proxies[1:], proxies[0])
+		}
+		authenticator := auth.NewAuthenticator(account.Email, account.Password, proxy_url)
 		err := authenticator.Begin()
 		if err.Error != nil {
 			// println("Error: " + err.Details)
