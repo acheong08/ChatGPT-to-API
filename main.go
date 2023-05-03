@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
@@ -82,6 +85,10 @@ func proxy(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
+	if _, ok := jsonBody["model"]; !ok {
+		c.JSON(400, gin.H{"error": "No model specified"})
+		return
+	}
 
 	var url string
 	var request_method string
@@ -117,14 +124,58 @@ func proxy(c *gin.Context) {
 		return
 	}
 	defer response.Body.Close()
-	c.Header("Content-Type", response.Header.Get("Content-Type"))
-	// Get status code
-	c.Status(response.StatusCode)
-	c.Stream(func(w io.Writer) bool {
-		// Write data to client
-		io.Copy(w, response.Body)
-		return false
-	})
+	// Check if "stream" is set and if set to true
+	if _, ok := jsonBody["stream"]; !ok {
+		if jsonBody["stream"] == true {
+			c.Header("Content-Type", response.Header.Get("Content-Type"))
+			// Get status code
+			c.Status(response.StatusCode)
+			c.Stream(func(w io.Writer) bool {
+				// Write data to client
+				io.Copy(w, response.Body)
+				return false
+			})
+			return
+		}
+	}
+	// Loop through response
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, gin.H{"error": "Error"})
+		return
+	}
+	var fulltext string = ""
+	for {
+		// Stream each line
+		line, err := bufio.NewReader(response.Body).ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		if len(line) < 5 {
+			fmt.Println(line)
+			break
+		}
+		// Remove data:
+		line = strings.Replace(line, "data: ", "", 1)
+		if strings.HasPrefix(line, "[DONE]") {
+			break
+		}
+		if !strings.HasPrefix(line, "{") {
+			break
+		}
+		// Parse as json
+		var jsonLine Data
+		err = json.Unmarshal([]byte(line), &jsonLine)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+		fulltext += fulltext + jsonLine.Choices[0].Delta.Content
+	}
+	c.JSON(200, NewFullCompletion(fulltext, jsonBody["model"].(string)))
 
 }
 
