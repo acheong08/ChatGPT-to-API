@@ -65,19 +65,11 @@ func proxy(c *gin.Context) {
 		return
 	}
 	// Parse as json
-	var jsonBody map[string]interface{}
+	var jsonBody APIRequest
 	err = json.Unmarshal(body, &jsonBody)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
-	}
-
-	// Check if "max_tokens" is set and if set to nil
-	if _, ok := jsonBody["max_tokens"]; !ok {
-
-	} else if jsonBody["max_tokens"] == nil {
-		// Remove "max_tokens" from json
-		delete(jsonBody, "max_tokens")
 	}
 
 	request_body, err := json.Marshal(jsonBody)
@@ -85,11 +77,10 @@ func proxy(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	if _, ok := jsonBody["model"]; !ok {
-		c.JSON(400, gin.H{"error": "No model specified"})
+	if jsonBody.Model == "" {
+		c.JSON(400, gin.H{"error": "Model is required"})
 		return
 	}
-
 	var url string
 	var request_method string
 	var request *http.Request
@@ -125,21 +116,18 @@ func proxy(c *gin.Context) {
 	}
 	defer response.Body.Close()
 	// Check if "stream" is set and if set to true
-	if _, ok := jsonBody["stream"]; ok {
-		if jsonBody["stream"] != nil {
-			if jsonBody["stream"].(bool) {
-				c.Header("Content-Type", response.Header.Get("Content-Type"))
-				// Get status code
-				c.Status(response.StatusCode)
-				c.Stream(func(w io.Writer) bool {
-					// Write data to client
-					io.Copy(w, response.Body)
-					return false
-				})
-				return
-			}
-		}
+	if jsonBody.Stream {
+		c.Header("Content-Type", response.Header.Get("Content-Type"))
+		// Get status code
+		c.Status(response.StatusCode)
+		c.Stream(func(w io.Writer) bool {
+			// Write data to client
+			io.Copy(w, response.Body)
+			return false
+		})
+		return
 	}
+
 	// Loop through response
 	if response.StatusCode != 200 {
 		c.JSON(response.StatusCode, gin.H{"error": "Error"})
@@ -175,7 +163,7 @@ func proxy(c *gin.Context) {
 		}
 		fulltext += jsonLine.Choices[0].Delta.Content
 	}
-	c.JSON(200, NewFullCompletion(fulltext, jsonBody["model"].(string)))
+	c.JSON(200, NewFullCompletion(fulltext, jsonBody.Model))
 
 }
 

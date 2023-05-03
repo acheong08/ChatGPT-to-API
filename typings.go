@@ -68,3 +68,19 @@ func NewFullCompletion(fulltext, model string) *FullCompletion {
 		},
 	}
 }
+
+type APIRequest struct {
+	Model            string             `json:"model"`
+	Messages         []Message          `json:"messages"`
+	Name             string             `json:"name,omitempty"`
+	Temperature      float64            `json:"temperature,omitempty"`
+	TopP             float64            `json:"top_p,omitempty"`
+	N                int                `json:"n,omitempty"`
+	Stream           bool               `json:"stream,omitempty"`
+	Stop             interface{}        `json:"stop,omitempty"`
+	MaxTokens        *int               `json:"max_tokens,omitempty"`
+	PresencePenalty  float64            `json:"presence_penalty,omitempty"`
+	FrequencyPenalty float64            `json:"frequency_penalty,omitempty"`
+	LogitBias        map[string]float64 `json:"logit_bias,omitempty"`
+	User             string             `json:"user,omitempty"`
+}
