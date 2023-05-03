@@ -144,19 +144,17 @@ func proxy(c *gin.Context) {
 		return
 	}
 	var fulltext string = ""
+	reader := bufio.NewReader(response.Body)
 	for {
-		// Stream each line
-		line, err := bufio.NewReader(response.Body).ReadString('\n')
+		line, err := reader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
-			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		if len(line) < 5 {
-			fmt.Println(line)
-			break
+		if len(line) < 6 {
+			continue
 		}
 		// Remove data:
 		line = strings.Replace(line, "data: ", "", 1)
@@ -173,7 +171,7 @@ func proxy(c *gin.Context) {
 			fmt.Println(err)
 			break
 		}
-		fulltext += fulltext + jsonLine.Choices[0].Delta.Content
+		fulltext += jsonLine.Choices[0].Delta.Content
 	}
 	c.JSON(200, NewFullCompletion(fulltext, jsonBody["model"].(string)))
 
