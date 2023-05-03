@@ -125,17 +125,19 @@ func proxy(c *gin.Context) {
 	}
 	defer response.Body.Close()
 	// Check if "stream" is set and if set to true
-	if _, ok := jsonBody["stream"]; !ok {
-		if jsonBody["stream"] == true {
-			c.Header("Content-Type", response.Header.Get("Content-Type"))
-			// Get status code
-			c.Status(response.StatusCode)
-			c.Stream(func(w io.Writer) bool {
-				// Write data to client
-				io.Copy(w, response.Body)
-				return false
-			})
-			return
+	if _, ok := jsonBody["stream"]; ok {
+		if jsonBody["stream"] != nil {
+			if jsonBody["stream"].(bool) {
+				c.Header("Content-Type", response.Header.Get("Content-Type"))
+				// Get status code
+				c.Status(response.StatusCode)
+				c.Stream(func(w io.Writer) bool {
+					// Write data to client
+					io.Copy(w, response.Body)
+					return false
+				})
+				return
+			}
 		}
 	}
 	// Loop through response
