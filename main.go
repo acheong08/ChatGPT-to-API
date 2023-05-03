@@ -42,6 +42,8 @@ func main() {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
 
+	handler.OPTIONS("/v1/chat/completions", optionsHandler)
+
 	handler.POST("/v1/chat/completions", proxy)
 
 	gin.SetMode(gin.ReleaseMode)
@@ -120,4 +122,14 @@ func proxy(c *gin.Context) {
 		return false
 	})
 
+}
+
+func optionsHandler(c *gin.Context) {
+	// Set headers for CORS
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "POST")
+	c.Header("Access-Control-Allow-Headers", "*")
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
 }
