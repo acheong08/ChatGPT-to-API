@@ -51,6 +51,10 @@ func main() {
 }
 
 func proxy(c *gin.Context) {
+	// Set headers for CORS
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "POST")
+	c.Header("Access-Control-Allow-Headers", "*")
 	// Read body
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
