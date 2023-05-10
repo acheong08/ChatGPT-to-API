@@ -116,6 +116,7 @@ func nightmare(c *gin.Context) {
 		// Response content type is application/json
 		c.Header("Content-Type", "application/json")
 	}
+	c.Status(200)
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -151,10 +152,7 @@ func nightmare(c *gin.Context) {
 			translated_response := responses.NewChatCompletionChunk(original_response.Message.Content.Parts[0])
 
 			// Stream the response to the client
-			response_string, err := json.Marshal(translated_response)
-			if err != nil {
-				continue
-			}
+			response_string := translated_response.String()
 			if original_request.Stream {
 				_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
 				if err != nil {
@@ -174,7 +172,10 @@ func nightmare(c *gin.Context) {
 				c.JSON(200, full_response)
 				return
 			}
-			c.String(200, "data: [DONE]")
+			final_line := responses.StopChunk()
+			c.Writer.WriteString("data: " + final_line.String() + "\n\n")
+
+			c.Writer.WriteString("data: [DONE]")
 			break
 
 		}

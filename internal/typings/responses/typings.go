@@ -1,5 +1,7 @@
 package responses
 
+import "encoding/json"
+
 type Message struct {
 	ID         string      `json:"id"`
 	Author     Author      `json:"author"`
@@ -42,8 +44,13 @@ type ChatCompletionChunk struct {
 	Choices []Choices `json:"choices"`
 }
 
+func (chunk *ChatCompletionChunk) String() string {
+	resp, _ := json.Marshal(chunk)
+	return string(resp)
+}
+
 type Choices struct {
-	Delta        Delta       `json:"delta"`
+	Delta        *Delta      `json:"delta"`
 	Index        int         `json:"index"`
 	FinishReason interface{} `json:"finish_reason"`
 }
@@ -62,11 +69,26 @@ func NewChatCompletionChunk(text string) ChatCompletionChunk {
 		Choices: []Choices{
 			{
 				Index: 0,
-				Delta: Delta{
+				Delta: &Delta{
 					Content: text,
 					Role:    "assistant",
 				},
 				FinishReason: nil,
+			},
+		},
+	}
+}
+
+func StopChunk() ChatCompletionChunk {
+	return ChatCompletionChunk{
+		ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
+		Object:  "chat.completion.chunk",
+		Created: 0,
+		Model:   "gpt-3.5-turbo-0301",
+		Choices: []Choices{
+			{
+				Index:        0,
+				FinishReason: "stop",
 			},
 		},
 	}
@@ -112,8 +134,7 @@ func NewChatCompletion(full_test string) ChatCompletion {
 					Content: full_test,
 					Role:    "assistant",
 				},
-				Index:        0,
-				FinishReason: "stop",
+				Index: 0,
 			},
 		},
 	}
