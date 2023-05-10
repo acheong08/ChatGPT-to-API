@@ -50,7 +50,7 @@ func (chunk *ChatCompletionChunk) String() string {
 }
 
 type Choices struct {
-	Delta        *Delta      `json:"delta"`
+	Delta        Delta       `json:"delta"`
 	Index        int         `json:"index"`
 	FinishReason interface{} `json:"finish_reason"`
 }
@@ -69,7 +69,7 @@ func NewChatCompletionChunk(text string) ChatCompletionChunk {
 		Choices: []Choices{
 			{
 				Index: 0,
-				Delta: &Delta{
+				Delta: Delta{
 					Content: text,
 					Role:    "assistant",
 				},
