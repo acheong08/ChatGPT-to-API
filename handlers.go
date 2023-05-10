@@ -175,7 +175,7 @@ func nightmare(c *gin.Context) {
 			final_line := responses.StopChunk()
 			c.Writer.WriteString("data: " + final_line.String() + "\n\n")
 
-			c.Writer.WriteString("data: [DONE]")
+			c.Writer.WriteString("data: [DONE]\n\n")
 			break
 
 		}
