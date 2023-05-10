@@ -175,7 +175,7 @@ func nightmare(c *gin.Context) {
 			c.Writer.WriteString("data: " + final_line.String() + "\n\n")
 
 			c.String(200, "data: [DONE]\n\n")
-			break
+			return
 
 		}
 	}
