@@ -116,7 +116,6 @@ func nightmare(c *gin.Context) {
 		// Response content type is application/json
 		c.Header("Content-Type", "application/json")
 	}
-	c.Status(200)
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -175,7 +174,7 @@ func nightmare(c *gin.Context) {
 			final_line := responses.StopChunk()
 			c.Writer.WriteString("data: " + final_line.String() + "\n\n")
 
-			c.Writer.WriteString("data: [DONE]\n\n")
+			c.String(200, "data: [DONE]\n\n")
 			break
 
 		}
