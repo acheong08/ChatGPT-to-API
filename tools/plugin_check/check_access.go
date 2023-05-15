@@ -54,7 +54,7 @@ func check_access(token string) bool {
 		json.NewDecoder(resp.Body).Decode(&result)
 		// Check if "tool1", "tool2", or "tool3" is in the features array
 		for _, feature := range result["features"].([]interface{}) {
-			if feature == "tool1" || feature == "tool2" || feature == "tool3" {
+			if feature == "tools1" || feature == "tools2" || feature == "tools3" {
 				return true
 			}
 		}
