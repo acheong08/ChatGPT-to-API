@@ -63,8 +63,8 @@ func SendRequest(message typings.ChatGPTRequest, access_token string) (*http.Res
 		client.SetProxy(http_proxy)
 	}
 	// Take random proxy from proxies.txt
-	if len(proxies) > 1 {
-		client.SetProxy(proxies[random_int(0, len(proxies)-1)])
+	if len(proxies) > 0 {
+		client.SetProxy(proxies[random_int(0, len(proxies))])
 	}
 
 	apiUrl := "https://chat.openai.com/backend-api/conversation"
