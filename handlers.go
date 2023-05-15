@@ -156,10 +156,7 @@ func nightmare(c *gin.Context) {
 				translated_response.Model = original_request.Model
 			}
 			// Stream the response to the client
-			response_string, err := json.Marshal(translated_response)
-			if err != nil {
-				continue
-			}
+			response_string := translated_response.String()
 			if original_request.Stream {
 				_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
 				if err != nil {
@@ -182,8 +179,11 @@ func nightmare(c *gin.Context) {
 				c.JSON(200, full_response)
 				return
 			}
-			c.String(200, "data: [DONE]")
-			break
+			final_line := responses.StopChunk()
+			c.Writer.WriteString("data: " + final_line.String() + "\n\n")
+
+			c.String(200, "data: [DONE]\n\n")
+			return
 
 		}
 	}

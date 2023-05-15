@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/acheong08/OpenAIAuth/auth"
 )
@@ -22,6 +24,9 @@ type Proxy struct {
 
 func (p Proxy) Socks5URL() string {
 	// Returns proxy URL (socks5)
+	if p.User == "" && p.Pass == "" {
+		return fmt.Sprintf("socks5://%s:%s", p.IP, p.Port)
+	}
 	return fmt.Sprintf("socks5://%s:%s@%s:%s", p.User, p.Pass, p.IP, p.Port)
 }
 
@@ -63,13 +68,23 @@ func readProxies() []Proxy {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		// Split by :
-		line := strings.Split(scanner.Text(), ":")
-		// Create a proxy
-		proxy := Proxy{
-			IP:   line[0],
-			Port: line[1],
-			User: line[2],
-			Pass: line[3],
+		lines := strings.Split(scanner.Text(), ":")
+		var proxy Proxy
+		if len(lines) == 4 {
+			// Create a proxy
+			proxy = Proxy{
+				IP:   lines[0],
+				Port: lines[1],
+				User: lines[2],
+				Pass: lines[3],
+			}
+		} else if len(lines) == 2 {
+			proxy = Proxy{
+				IP:   lines[0],
+				Port: lines[1],
+			}
+		} else {
+			continue
 		}
 		// Append to proxies
 		proxies = append(proxies, proxy)
@@ -81,21 +96,33 @@ func main() {
 	// Read accounts and proxies
 	accounts := readAccounts()
 	proxies := readProxies()
-	puid := os.Getenv("PUID")
 
 	// Loop through each account
 	for _, account := range accounts {
-		println(proxies[0].Socks5URL())
+		if os.Getenv("CF_PROXY") != "" {
+			// exec warp-cli disconnect and connect
+			exec.Command("warp-cli", "disconnect").Run()
+			exec.Command("warp-cli", "connect").Run()
+			time.Sleep(5 * time.Second)
+		}
 		println(account.Email)
 		println(account.Password)
-		authenticator := auth.NewAuthenticator(account.Email, account.Password, puid, proxies[0].Socks5URL())
-		// Push used proxy to the back of the list
-		proxies = append(proxies[1:], proxies[0])
+		var proxy_url string
+		if len(proxies) == 0 {
+			proxy_url = ""
+		} else {
+			proxy_url = proxies[0].Socks5URL()
+			// Push used proxy to the back of the list
+			proxies = append(proxies[1:], proxies[0])
+			println(proxies[0].Socks5URL())
+		}
+		authenticator := auth.NewAuthenticator(account.Email, account.Password, proxy_url)
 		err := authenticator.Begin()
 		if err.Error != nil {
 			// println("Error: " + err.Details)
 			println("Location: " + err.Location)
 			println("Status code: " + fmt.Sprint(err.StatusCode))
+			println("Details: " + err.Details)
 			println("Embedded error: " + err.Error.Error())
 			return
 		}
