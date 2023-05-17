@@ -90,6 +90,9 @@ func SendRequest(message typings.ChatGPTRequest, access_token string) (*http.Res
 	if access_token != "" {
 		request.Header.Set("Authorization", "Bearer "+access_token)
 	}
+	if os.Getenv("PUID") != "" {
+		request.AddCookie(&http.Cookie{Name: "_puid", Value: os.Getenv("PUID")})
+	}
 	if err != nil {
 		return &http.Response{}, err
 	}
