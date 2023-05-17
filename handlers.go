@@ -95,12 +95,20 @@ func nightmare(c *gin.Context) {
 		var error_response map[string]interface{}
 		err = json.NewDecoder(response.Body).Decode(&error_response)
 		if err != nil {
-			c.JSON(response.StatusCode, err)
+			c.JSON(500, gin.H{"error": gin.H{
+				"message": "Unknown error",
+				"type":    "internal_server_error",
+				"param":   nil,
+				"code":    "500",
+			}})
 			return
 		}
-		c.JSON(response.StatusCode, gin.H{
-			"error": "error sending request", "details": error_response,
-		})
+		c.JSON(response.StatusCode, gin.H{"error": gin.H{
+			"message": error_response["detail"],
+			"type":    response.Status,
+			"param":   nil,
+			"code":    "error",
+		}})
 		return
 	}
 	// Create a bufio.Reader from the response body
