@@ -54,20 +54,12 @@ func optionsHandler(c *gin.Context) {
 func nightmare(c *gin.Context) {
 	var original_request typings.APIRequest
 	err := c.BindJSON(&original_request)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error":   "invalid request",
-			"details": err.Error(),
-		})
-		return
-	}
-	// Throw error when model contains gpt-4
-	if strings.Contains(original_request.Model, "gpt-4") {
-		c.JSON(400, gin.H{
-			"error": "gpt-4 is not supported",
-		})
-		return
-	}
+	c.JSON(400, gin.H{"error": gin.H{
+		"message": "Request must be proper JSON",
+		"type":    "invalid_request_error",
+		"param":   nil,
+		"code":    err.Error(),
+	}})
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt.ConvertAPIRequest(original_request)
 	// c.JSON(200, chatgpt_request)
