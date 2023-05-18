@@ -8,7 +8,12 @@ Create a fake API using ChatGPT's website
 
 ## Setup
 
+<details>
+  <summary>
+    
 ### Authentication
+  </summary>
+  
 Access token retrieval has been automated:
 https://github.com/acheong08/ChatGPT-to-API/tree/master/tools/authenticator
 
@@ -32,48 +37,29 @@ done < access_tokens.txt
 echo "$START$TOKENS$END" > access_tokens.json
 ```
 
-### Cloudflare annoyances
-Proxy used by default
-or
-`export API_REVERSE_PROXY="https://your.own.proxy.com/api/conversation"`
+</details>
 
-## Docker build & Run
+## Getting set up
+  
+`git clone https://github.com/acheong08/ChatGPT-to-API`
+`cd ChatGPT-to-API`
+`go build`
+`./freechatgpt`
 
-```bash
-docker build -t chatgpt-to-api .
+### Environment variables
+  - `PUID` - A cookie found on chat.openai.com for Plus users. This gets around Cloudflare rate limits
+  - `http_proxy` - SOCKS5 or HTTP proxy. `socks5://HOST:PORT`
+  - `SERVER_HOST` - Set to 127.0.0.1 by default
+  - `SERVER_PORT` - Set to 8080 by default
 
-# Running the API
-docker run --name chatgpttoapi -d -p 127.0.0.1:8080:8080 chatgpt-to-api
+### Files (Optional)
+  - `access_tokens.json` - A JSON array of access tokens for cycling (Alternatively, send a PATCH request to the [correct endpoint](https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md))
+  - `proxies.txt` - A list of proxies separated by new line (Format: `USERNAME:PASSWORD:HOST:PORT`)
+  
 
-# API path
-http://127.0.0.1:8080/v1/chat/completions
-
-```
 
 ## Admin API docs
 https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md
 
 ## API usage docs
 https://platform.openai.com/docs/api-reference/chat
-
-
-## Docker compose
-
-[Hub address](https://hub.docker.com/repository/docker/acheong08/chatgpt-to-api/general)
-
-```yml
-version: '3'
-
-services:
-  app:
-    image: acheong08/chatgpt-to-api # Use latest tag
-    container_name: chatgpttoapi
-    restart: unless-stopped
-    ports:
-      - '8080:8080'
-    environment:
-      SERVER_HOST: 0.0.0.0
-      SERVER_PORT: 8080
-      ADMIN_PASSWORD: TotallySecurePassword
-      # If the parameter API_REVERSE_PROXY is empty, the default request URL is https://ai.fakeopen.com/api/conversation
-```
