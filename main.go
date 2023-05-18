@@ -60,8 +60,8 @@ func init() {
 	} else {
 		nowTime := time.Now()
 		usedTime := nowTime.Sub(stat.ModTime())
-		// update access token 25 days after last modify token file
-		toExpire := 2.16e15 - usedTime
+		// update access token 20 days after last modify token file
+		toExpire := 1.728e15 - usedTime
 		if toExpire > 0 {
 			file, err := os.Open("access_tokens.json")
 			if err != nil {

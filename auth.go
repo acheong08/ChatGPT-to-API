@@ -113,5 +113,5 @@ func updateToken() {
 	}
 	// Append access token to access_tokens.json
 	ACCESS_TOKENS = tokens.NewAccessToken(token_list, true)
-	time.AfterFunc(2.16e15, updateToken)
+	time.AfterFunc(1.728e15, updateToken)
 }
