@@ -1,4 +1,4 @@
-package types
+package chatgpt
 
 import "github.com/google/uuid"
 

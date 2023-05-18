@@ -4,8 +4,8 @@ import (
 	typings "freechatgpt/internal/typings"
 )
 
-func ConvertAPIRequest(api_request typings.APIRequest) typings.ChatGPTRequest {
-	chatgpt_request := typings.NewChatGPTRequest()
+func ConvertAPIRequest(api_request typings.APIRequest) ChatGPTRequest {
+	chatgpt_request := NewChatGPTRequest()
 	for _, api_message := range api_request.Messages {
 		if api_message.Role == "system" {
 			api_message.Role = "critic"

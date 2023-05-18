@@ -8,8 +8,6 @@ import (
 	"os"
 	"strings"
 
-	typings "freechatgpt/internal/typings"
-
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
 )
@@ -58,7 +56,7 @@ func random_int(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func SendRequest(message typings.ChatGPTRequest, access_token string) (*http.Response, error) {
+func SendRequest(message ChatGPTRequest, access_token string) (*http.Response, error) {
 	if http_proxy != "" && len(proxies) == 0 {
 		client.SetProxy(http_proxy)
 	}
