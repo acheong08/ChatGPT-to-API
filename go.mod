@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/acheong08/OpenAIAuth v0.0.0-20230429120645-cf04cc5986cc // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/bogdanfinn/utls v1.5.15 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect

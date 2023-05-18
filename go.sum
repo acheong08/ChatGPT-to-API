@@ -1,3 +1,5 @@
+github.com/acheong08/OpenAIAuth v0.0.0-20230429120645-cf04cc5986cc h1:WpbCaZsudUpNTRkuwrpap+X0d76qydqNYg1s0OqtcnI=
+github.com/acheong08/OpenAIAuth v0.0.0-20230429120645-cf04cc5986cc/go.mod h1:QAJ15BSNp3HNgPWPn2CK1zsZnCeBR60v2u798OTBif8=
 github.com/andybalholm/brotli v1.0.4 h1:V7DdXeJtZscaqfNuAdSRuRFzuiKlHSC/Zh3zl9qY3JY=
 github.com/andybalholm/brotli v1.0.4/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/bogdanfinn/fhttp v0.5.19 h1:/FKuFAtSw3+iZyNkaWXRDSVqMmOvThDjXanlG6/DXos=

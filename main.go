@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"freechatgpt/internal/tokens"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
@@ -13,6 +15,28 @@ import (
 var HOST string
 var PORT string
 var ACCESS_TOKENS tokens.AccessToken
+var proxies []string
+
+func checkProxy() {
+	// Check for proxies.txt
+	proxies = []string{}
+	if _, err := os.Stat("proxies.txt"); err == nil {
+		// Each line is a proxy, put in proxies array
+		file, _ := os.Open("proxies.txt")
+		defer file.Close()
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			// Split line by :
+			proxy := scanner.Text()
+			proxy_parts := strings.Split(proxy, ":")
+			if len(proxy_parts) > 0 {
+				proxies = append(proxies, proxy)
+			} else {
+				continue
+			}
+		}
+	}
+}
 
 func init() {
 	HOST = os.Getenv("SERVER_HOST")
@@ -23,33 +47,43 @@ func init() {
 	if PORT == "" {
 		PORT = "8080"
 	}
-	accessToken := os.Getenv("ACCESS_TOKENS")
-	if accessToken != "" {
-		accessTokens := strings.Split(accessToken, ",")
-		ACCESS_TOKENS = tokens.NewAccessToken(accessTokens)
-	}
+	checkProxy()
 	// Check if access_tokens.json exists
-	if _, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
+	if stat, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
 		// Create the file
 		file, err := os.Create("access_tokens.json")
 		if err != nil {
 			panic(err)
 		}
 		defer file.Close()
+		updateToken()
 	} else {
-		// Load the tokens
-		file, err := os.Open("access_tokens.json")
-		if err != nil {
-			panic(err)
+		nowTime := time.Now()
+		usedTime := nowTime.Sub(stat.ModTime())
+		// update access token 25 days after last modify token file
+		toExpire := 2.16e15 - usedTime
+		if toExpire > 0 {
+			file, err := os.Open("access_tokens.json")
+			if err != nil {
+				panic(err)
+			}
+			defer file.Close()
+			decoder := json.NewDecoder(file)
+			var token_list []string
+			err = decoder.Decode(&token_list)
+			if err != nil {
+				updateToken()
+				return
+			}
+			if len(token_list) == 0 {
+				updateToken()
+			} else {
+				ACCESS_TOKENS = tokens.NewAccessToken(token_list, false)
+				time.AfterFunc(toExpire, updateToken)
+			}
+		} else {
+			updateToken()
 		}
-		defer file.Close()
-		decoder := json.NewDecoder(file)
-		var token_list []string
-		err = decoder.Decode(&token_list)
-		if err != nil {
-			return
-		}
-		ACCESS_TOKENS = tokens.NewAccessToken(token_list)
 	}
 }
 
