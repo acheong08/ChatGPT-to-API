@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"freechatgpt/internal/tokens"
+	"log"
+	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
-	"github.com/acheong08/endless"
 	"github.com/gin-gonic/gin"
 )
 
@@ -73,5 +78,46 @@ func main() {
 	/// Public routes
 	router.OPTIONS("/v1/chat/completions", optionsHandler)
 	router.POST("/v1/chat/completions", nightmare)
-	endless.ListenAndServe(HOST+":"+PORT, router)
+	srv := &http.Server{
+		Addr:    HOST + ":" + PORT,
+		Handler: router,
+	}
+
+	// Receive another goroutine listen error
+	serverError := make(chan error, 1)
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal, 1)
+
+	// Initializing the server in a goroutine so that
+	// it won't block the graceful shutdown handling below
+	go func() {
+		serverError <- srv.ListenAndServe()
+	}()
+
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be caught, so don't need to add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case err := <-serverError:
+		log.Printf("listen: %s\n", err)
+	case <-quit:
+		log.Println("Shutting down server...")
+		// The context is used to inform the server it has 5 seconds to finish
+		// the request it is currently handling
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Fatal("Server Shutdown:", err)
+		}
+		select {
+		case <-ctx.Done():
+			log.Println("timeout of 5 seconds.")
+		}
+		log.Println("Server exiting")
+	}
 }
