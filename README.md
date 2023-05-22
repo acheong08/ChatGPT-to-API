@@ -1,12 +1,12 @@
 # ChatGPT-to-API
-Create a fake API using ChatGPT's website
+Create a fake API using ChatGPT's website [中文说明](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/README_ZH.md)
 
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
 ## Setup
     
 ### Authentication
-  
+
 Access token retrieval has been automated by [OpenAIAuth](https://github.com/acheong08/OpenAIAuth/) with account email & password.
 
 `accounts.txt` - A list of accounts separated by new line 
