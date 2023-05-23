@@ -142,6 +142,9 @@ func nightmare(c *gin.Context) {
 			if original_response.Error != nil {
 				return
 			}
+			if original_response.Message.Content.Parts == nil {
+				continue
+			}
 			if original_response.Message.Content.Parts[0] == "" || original_response.Message.Author.Role != "assistant" {
 				continue
 			}
