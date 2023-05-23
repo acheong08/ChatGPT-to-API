@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fvbock/endless"
+	"github.com/acheong08/endless"
 	"github.com/gin-gonic/gin"
 )
 
