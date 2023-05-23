@@ -52,8 +52,7 @@ func updateToken() {
 			exec.Command("warp-cli", "connect").Run()
 			time.Sleep(5 * time.Second)
 		}
-		println(account.Email)
-		println(account.Password)
+		println("Updating access token for " + account.Email)
 		var proxy_url string
 		if len(proxies) == 0 {
 			proxy_url = ""
@@ -81,6 +80,7 @@ func updateToken() {
 			return
 		}
 		token_list = append(token_list, access_token)
+		println("Success!")
 		// Write authenticated account to authenticated_accounts.txt
 		f, go_err := os.OpenFile("authenticated_accounts.txt", os.O_APPEND|os.O_WRONLY, 0600)
 		if go_err != nil {
