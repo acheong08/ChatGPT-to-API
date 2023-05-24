@@ -81,15 +81,12 @@ func SendRequest(message ChatGPTRequest, access_token string) (*http.Response, e
 		return &http.Response{}, err
 	}
 	// Clear cookies
-	request.Header.Set("Cookie", "")
+	request.Header.Set("Cookie", "_puid="+os.Getenv("PUID")+";")
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36")
 	request.Header.Set("Accept", "*/*")
 	if access_token != "" {
 		request.Header.Set("Authorization", "Bearer "+access_token)
-	}
-	if os.Getenv("PUID") != "" {
-		request.AddCookie(&http.Cookie{Name: "_puid", Value: os.Getenv("PUID")})
 	}
 	if err != nil {
 		return &http.Response{}, err
