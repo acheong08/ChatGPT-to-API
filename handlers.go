@@ -105,11 +105,14 @@ func nightmare(c *gin.Context) {
 		var error_response map[string]interface{}
 		err = json.NewDecoder(response.Body).Decode(&error_response)
 		if err != nil {
+			// Read response body
+			body, _ := io.ReadAll(response.Body)
 			c.JSON(500, gin.H{"error": gin.H{
 				"message": "Unknown error",
 				"type":    "internal_server_error",
 				"param":   nil,
 				"code":    "500",
+				"details": string(body),
 			}})
 			return
 		}
