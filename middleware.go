@@ -31,3 +31,13 @@ func cors(c *gin.Context) {
 	c.Header("Access-Control-Allow-Headers", "*")
 	c.Next()
 }
+
+func Authorization(c *gin.Context) {
+	api_password := os.Getenv("API_PASSWORD")
+	if api_password != "" && c.Request.Header.Get("Authorization") != api_password {
+		c.String(401, "Unauthorized")
+		c.Abort()
+		return
+	}
+	c.Next()
+}

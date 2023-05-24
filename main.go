@@ -69,9 +69,10 @@ func main() {
 
 	/// Admin routes
 	admin_routes.PATCH("/password", passwordHandler)
-	admin_routes.PATCH("/tokens", adminCheck, tokensHandler)
+	admin_routes.PATCH("/tokens", tokensHandler)
+	admin_routes.PATCH("/puid", puidHandler)
 	/// Public routes
 	router.OPTIONS("/v1/chat/completions", optionsHandler)
-	router.POST("/v1/chat/completions", nightmare)
+	router.POST("/v1/chat/completions", Authorization, nightmare)
 	endless.ListenAndServe(HOST+":"+PORT, router)
 }

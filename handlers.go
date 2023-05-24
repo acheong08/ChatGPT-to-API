@@ -31,6 +31,22 @@ func passwordHandler(c *gin.Context) {
 	c.String(200, "password updated")
 }
 
+func puidHandler(c *gin.Context) {
+	// Get the password from the request (json) and update the password
+	type puid_struct struct {
+		PUID string `json:"puid"`
+	}
+	var puid puid_struct
+	err := c.BindJSON(&puid)
+	if err != nil {
+		c.String(400, "puid not provided")
+		return
+	}
+	// Set environment variable
+	os.Setenv("PUID", puid.PUID)
+	c.String(200, "puid updated")
+}
+
 func tokensHandler(c *gin.Context) {
 	// Get the request_tokens from the request (json) and update the request_tokens
 	var request_tokens []string
