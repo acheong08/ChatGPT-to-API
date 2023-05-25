@@ -9,8 +9,8 @@ func ConvertAPIRequest(api_request typings.APIRequest) ChatGPTRequest {
 	chatgpt_request := NewChatGPTRequest()
 	if strings.HasPrefix(api_request.Model, "gpt-4") {
 		chatgpt_request.Model = "gpt-4"
-		if api_request.Model == "gpt-4-browsing" {
-			chatgpt_request.Model = "gpt-4-browsing"
+		if api_request.Model == "gpt-4-browsing" || api_request.Model == "gpt-4-plugins" || api_request.Model == "gpt-4-mobile" || api_request.Model == "gpt-4-code-interpreter" {
+			chatgpt_request.Model = api_request.Model
 		}
 	}
 	for _, api_message := range api_request.Messages {
