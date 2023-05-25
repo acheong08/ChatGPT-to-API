@@ -18,17 +18,19 @@ type chatgpt_author struct {
 }
 
 type ChatGPTRequest struct {
-	Action          string            `json:"action"`
-	Messages        []chatgpt_message `json:"messages"`
-	ParentMessageID string            `json:"parent_message_id,omitempty"`
-	Model           string            `json:"model"`
+	Action                     string            `json:"action"`
+	Messages                   []chatgpt_message `json:"messages"`
+	ParentMessageID            string            `json:"parent_message_id,omitempty"`
+	Model                      string            `json:"model"`
+	HistoryAndTrainingDisabled bool              `json:"history_and_training_disabled"`
 }
 
 func NewChatGPTRequest() ChatGPTRequest {
 	return ChatGPTRequest{
-		Action:          "next",
-		ParentMessageID: uuid.NewString(),
-		Model:           "text-davinci-002-render-sha",
+		Action:                     "next",
+		ParentMessageID:            uuid.NewString(),
+		Model:                      "text-davinci-002-render-sha",
+		HistoryAndTrainingDisabled: true,
 	}
 }
 
