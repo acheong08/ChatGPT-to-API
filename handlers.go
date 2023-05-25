@@ -94,8 +94,9 @@ func nightmare(c *gin.Context) {
 
 	response, err := chatgpt.SendRequest(translated_request, token)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"error": "error sending request",
+		c.JSON(response.StatusCode, gin.H{
+			"error":   "error sending request",
+			"message": response.Status,
 		})
 		return
 	}
