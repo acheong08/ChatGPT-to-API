@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/acheong08/OpenAIAuth/auth"
+	"authenticator/auth"
 )
 
 type Account struct {
@@ -61,7 +61,7 @@ func readProxies() []Proxy {
 	// Read proxies.txt and create a list of proxies
 	file, err := os.Open("proxies.txt")
 	if err != nil {
-		panic(err)
+		return []Proxy{}
 	}
 	defer file.Close()
 	// Loop through each line in the file
@@ -109,13 +109,15 @@ func main() {
 		println(account.Password)
 		var proxy_url string
 		if len(proxies) == 0 {
-			proxy_url = ""
+			if os.Getenv("http_proxy") != "" {
+				proxy_url = os.Getenv("http_proxy")
+			}
 		} else {
 			proxy_url = proxies[0].Socks5URL()
 			// Push used proxy to the back of the list
 			proxies = append(proxies[1:], proxies[0])
-			println(proxies[0].Socks5URL())
 		}
+		println(proxy_url)
 		authenticator := auth.NewAuthenticator(account.Email, account.Password, proxy_url)
 		err := authenticator.Begin()
 		if err.Error != nil {
@@ -131,6 +133,7 @@ func main() {
 			// println("Error: " + err.Details)
 			println("Location: " + err.Location)
 			println("Status code: " + fmt.Sprint(err.StatusCode))
+			println("Details: " + err.Details)
 			println("Embedded error: " + err.Error.Error())
 			return
 		}

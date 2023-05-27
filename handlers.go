@@ -31,6 +31,22 @@ func passwordHandler(c *gin.Context) {
 	c.String(200, "password updated")
 }
 
+func puidHandler(c *gin.Context) {
+	// Get the password from the request (json) and update the password
+	type puid_struct struct {
+		PUID string `json:"puid"`
+	}
+	var puid puid_struct
+	err := c.BindJSON(&puid)
+	if err != nil {
+		c.String(400, "puid not provided")
+		return
+	}
+	// Set environment variable
+	os.Setenv("PUID", puid.PUID)
+	c.String(200, "puid updated")
+}
+
 func tokensHandler(c *gin.Context) {
 	// Get the request_tokens from the request (json) and update the request_tokens
 	var request_tokens []string
@@ -85,8 +101,9 @@ func nightmare(c *gin.Context) {
 	}
 	response, err := chatgpt.SendRequest(translated_request, token, proxy_url)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"error": "error sending request",
+		c.JSON(response.StatusCode, gin.H{
+			"error":   "error sending request",
+			"message": response.Status,
 		})
 		return
 	}
@@ -96,11 +113,14 @@ func nightmare(c *gin.Context) {
 		var error_response map[string]interface{}
 		err = json.NewDecoder(response.Body).Decode(&error_response)
 		if err != nil {
+			// Read response body
+			body, _ := io.ReadAll(response.Body)
 			c.JSON(500, gin.H{"error": gin.H{
 				"message": "Unknown error",
 				"type":    "internal_server_error",
 				"param":   nil,
 				"code":    "500",
+				"details": string(body),
 			}})
 			return
 		}
