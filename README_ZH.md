@@ -24,6 +24,19 @@
 
 注意！ 请使用未封锁的ip登录账号，请先打开浏览器登录`https://chat.openai.com/`以检查ip是否可用
 
+### API 密钥（可选）
+
+如OpenAI的官方API一样，可给模拟的API添加API密钥认证
+
+`api_keys.txt` - 存放API密钥的文件
+
+格式:
+```
+sk-123456
+88888888
+...
+```
+
 ## 开始
 ```  
 git clone https://github.com/xqdoo00o/ChatGPT-to-API

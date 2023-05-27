@@ -23,6 +23,19 @@ Auto renew access tokens after 20 days
 
 Caution! please use unblocked ip for authentication, first login to `https://chat.openai.com/` to check ip availability if you can.
 
+### API Authentication (Optional)
+
+Custom API keys for this fake API, just like OpenAI api
+
+`api_keys.txt` - A list of API keys separated by new line
+
+Format:
+```
+sk-123456
+88888888
+...
+```
+
 ## Getting set up
 ```  
 git clone https://github.com/xqdoo00o/ChatGPT-to-API
