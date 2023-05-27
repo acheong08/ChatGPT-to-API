@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"os"
 
 	gin "github.com/gin-gonic/gin"
 )
 
 var ADMIN_PASSWORD string
+var API_KEYS map[string]bool
 
 func init() {
 	ADMIN_PASSWORD = os.Getenv("ADMIN_PASSWORD")
@@ -33,8 +35,21 @@ func cors(c *gin.Context) {
 }
 
 func Authorization(c *gin.Context) {
-	api_password := os.Getenv("API_PASSWORD")
-	if api_password != "" && c.Request.Header.Get("Authorization") != api_password {
+	if API_KEYS == nil {
+		API_KEYS = make(map[string]bool)
+		if _, err := os.Stat("api_keys.txt"); err == nil {
+			file, _ := os.Open("api_keys.txt")
+			defer file.Close()
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				key := scanner.Text()
+				if key != "" {
+					API_KEYS["Bearer "+key] = true
+				}
+			}
+		}
+	}
+	if len(API_KEYS) != 0 && API_KEYS[c.Request.Header.Get("Authorization")] != true {
 		c.String(401, "Unauthorized")
 		c.Abort()
 		return
