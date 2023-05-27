@@ -29,7 +29,7 @@ func checkProxy() {
 			// Split line by :
 			proxy := scanner.Text()
 			proxy_parts := strings.Split(proxy, ":")
-			if len(proxy_parts) > 0 {
+			if len(proxy_parts) > 1 {
 				proxies = append(proxies, proxy)
 			} else {
 				continue
