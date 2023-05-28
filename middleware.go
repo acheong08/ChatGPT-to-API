@@ -49,7 +49,7 @@ func Authorization(c *gin.Context) {
 			}
 		}
 	}
-	if len(API_KEYS) != 0 && API_KEYS[c.Request.Header.Get("Authorization")] != true {
+	if len(API_KEYS) != 0 && !API_KEYS[c.Request.Header.Get("Authorization")] {
 		c.String(401, "Unauthorized")
 		c.Abort()
 		return

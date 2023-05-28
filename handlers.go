@@ -80,17 +80,16 @@ func nightmare(c *gin.Context) {
 	}
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt.ConvertAPIRequest(original_request)
-	// c.JSON(200, chatgpt_request)
 
-	// authHeader := c.GetHeader("Authorization")
+	authHeader := c.GetHeader("Authorization")
 	token := ACCESS_TOKENS.GetToken()
-	// if authHeader != "" {
-	// 	customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
-	// 	if customAccessToken != "" {
-	// 		token = customAccessToken
-	// 		println("customAccessToken set:" + customAccessToken)
-	// 	}
-	// }
+	if authHeader != "" {
+		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
+		// Check if customAccessToken starts with sk-
+		if strings.HasPrefix(customAccessToken, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1UaEVOVUpHTkVNMVFURTRNMEZCTWpkQ05UZzVNRFUxUlRVd1FVSkRNRU13UmtGRVFrRXpSZyJ9") {
+			token = customAccessToken
+		}
+	}
 
 	response, err := chatgpt.SendRequest(translated_request, token)
 	if err != nil {
