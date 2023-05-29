@@ -41,6 +41,17 @@
 
 ```docker-compose --version```
 
+启动容器
+
+```docker-compose up -d```
+
+关闭容器
+
+```docker-compose down```
+
+查看容器（如果启动了这里没有说明启动失败）
+
+```docker ps```
 
 # ChatGPT-TO-API的Docker-Compase文件
 
@@ -61,3 +72,4 @@
 - 这里的ports，左边是外部端口，用于外部访问。右边的Docker端口，需要匹配下面程序设置的监听Port。
 - 如果参数`API_REVERSE_PROXY`为空，则默认的请求URL为`https://chat.openai.com/backend-api/conversation`，并且需要提供PUID。PUID的获取参考 [README_CN.md](README_CN.md)
 - 这个密码需要自定义，我们构建请求的时候需要它来鉴权。默认是```TotallySecurePassword```
+

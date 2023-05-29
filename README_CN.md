@@ -1,10 +1,11 @@
 # ChatGPT-to-API
 创建一个模拟API（通过ChatGPT网页版）
 
-本中文手册由 @BlueSkyXN 编写
+本中文手册由 [@BlueSkyXN](https://github.com/BlueSkyXN) 编写
 
-**API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
+
+[英文文档（English Docs）](README.md)
 
 ## 认证和各项准备工作
 
@@ -36,6 +37,12 @@ PUID，就是Personal User ID。这是这个项目中一个特色，其他项目
 ```docker-compose up -d```
 
 注意，启动之前你需要配置 yml 配置文件，主要是端口和环境变量，各项参数、用法请参考 [中文指导手册](docs\GUIDE_CN.md)
+
+最后的API端点（Endpoint）是
+
+```http://127.0.0.1:8080/v1/chat/completions```
+
+注意域名/IP和端口要改成你自己的
 
 ### 环境变量
   - `PUID` - 用户ID
