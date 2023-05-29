@@ -3,8 +3,6 @@
 
 本中文手册由 [@BlueSkyXN](https://github.com/BlueSkyXN) 编写
 
-
-
 [英文文档（English Docs）](README.md)
 
 ## 认证和各项准备工作
