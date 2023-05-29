@@ -1,7 +1,3 @@
-github.com/acheong08/endless v0.0.0-20230521065036-9093810e0b7b h1:9nb1FmjMHkUPeB72s5yuWThe60G6F+4ro+nKw9mosXk=
-github.com/acheong08/endless v0.0.0-20230521065036-9093810e0b7b/go.mod h1:0yO7neMeJLvKk/B/fq5votDY8rByrOPDubpvU+6saKo=
-github.com/acheong08/endless v0.0.0-20230522010333-1359fd84c836 h1:1qPj/+BrLWPt+V0/DpWrysvZKj8VRjQ+VNcePUpL6Y8=
-github.com/acheong08/endless v0.0.0-20230522010333-1359fd84c836/go.mod h1:0yO7neMeJLvKk/B/fq5votDY8rByrOPDubpvU+6saKo=
 github.com/acheong08/endless v0.0.0-20230529075213-74050cf641c8 h1:mHtMoGlGNUfMRjsWcb5Kvd1mJfJG8Gr1TtIghE8iiN8=
 github.com/acheong08/endless v0.0.0-20230529075213-74050cf641c8/go.mod h1:0yO7neMeJLvKk/B/fq5votDY8rByrOPDubpvU+6saKo=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
@@ -13,8 +9,6 @@ github.com/bogdanfinn/tls-client v1.3.12/go.mod h1:Q46nwIm0wPCweDM3XZcupxEIsTOWo
 github.com/bogdanfinn/utls v1.5.16 h1:NhhWkegEcYETBMj9nvgO4lwvc6NcLH+znrXzO3gnw4M=
 github.com/bogdanfinn/utls v1.5.16/go.mod h1:mHeRCi69cUiEyVBkKONB1cAbLjRcZnlJbGzttmiuK4o=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
-github.com/bytedance/sonic v1.8.8 h1:Kj4AYbZSeENfyXicsYppYKO0K2YWab+i2UTSY7Ukz9Q=
-github.com/bytedance/sonic v1.8.8/go.mod h1:i736AoUSYt75HyZLoJW9ERYxcy6eaN6h4BZXU064P/U=
 github.com/bytedance/sonic v1.8.9 h1:mXB6OoHaI9OrWugkvNxWiuHTy5RCrVfxg2Nn40sf0oc=
 github.com/bytedance/sonic v1.8.9/go.mod h1:i736AoUSYt75HyZLoJW9ERYxcy6eaN6h4BZXU064P/U=
 github.com/chenzhuoyu/base64x v0.0.0-20211019084208-fb5309c8db06/go.mod h1:DH46F32mSOjUmXrMHnKwZdA8wcEefY7UVqBKYGjpdQY=
