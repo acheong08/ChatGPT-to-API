@@ -1,5 +1,5 @@
 # ChatGPT-to-API
-创建一个模拟API（通过ChatGPT网页版）
+创建一个模拟API（通过ChatGPT网页版）。使用AccessToken把ChatGPT模拟成OpenAI API，从而在各类应用程序中使用OpenAI的API且不需要为API额外付费，因为模拟成网页版的使用了。
 
 本中文手册由 [@BlueSkyXN](https://github.com/BlueSkyXN) 编写
 
