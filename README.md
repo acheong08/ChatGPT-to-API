@@ -3,6 +3,8 @@ Create a fake API using ChatGPT's website
 
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
+[中文文档（Chinese Docs）](README_CN.md)
+
 ## Help needed
 - Documentation.
 
