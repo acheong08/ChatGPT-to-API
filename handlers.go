@@ -14,6 +14,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func openaiHandler(c *gin.Context) {
+	err := c.BindJSON(&authorizations)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "JSON invalid"})
+	}
+	os.Setenv("OPENAI_EMAIL", authorizations.OpenAI_Email)
+	os.Setenv("OPENAI_PASSWORD", authorizations.OpenAI_Password)
+}
+
 func passwordHandler(c *gin.Context) {
 	// Get the password from the request (json) and update the password
 	type password_struct struct {

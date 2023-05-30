@@ -3,9 +3,12 @@ package main
 import (
 	"encoding/json"
 	"freechatgpt/internal/tokens"
+	"log"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/acheong08/OpenAIAuth/auth"
 	"github.com/acheong08/endless"
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +17,33 @@ var HOST string
 var PORT string
 var ACCESS_TOKENS tokens.AccessToken
 
+var authorizations struct {
+	OpenAI_Email    string `json:"openai_email"`
+	OpenAI_Password string `json:"openai_password"`
+}
+
 func init() {
+	authorizations.OpenAI_Email = os.Getenv("OPENAI_EMAIL")
+	authorizations.OpenAI_Password = os.Getenv("OPENAI_PASSWORD")
+	if authorizations.OpenAI_Email != "" && authorizations.OpenAI_Password != "" {
+		go func() {
+			for {
+				authenticator := auth.NewAuthenticator(authorizations.OpenAI_Email, authorizations.OpenAI_Password, os.Getenv("http_proxy"))
+				err := authenticator.Begin()
+				if err != nil {
+					log.Println(err)
+					break
+				}
+				puid, err := authenticator.GetPUID()
+				if err != nil {
+					break
+				}
+				os.Setenv("PUID", puid)
+				println(puid)
+				time.Sleep(24 * time.Hour * 7)
+			}
+		}()
+	}
 	HOST = os.Getenv("SERVER_HOST")
 	PORT = os.Getenv("SERVER_PORT")
 	if HOST == "" {
@@ -52,7 +81,6 @@ func init() {
 		ACCESS_TOKENS = tokens.NewAccessToken(token_list)
 	}
 }
-
 func main() {
 	router := gin.Default()
 
@@ -71,6 +99,7 @@ func main() {
 	admin_routes.PATCH("/password", passwordHandler)
 	admin_routes.PATCH("/tokens", tokensHandler)
 	admin_routes.PATCH("/puid", puidHandler)
+	admin_routes.PATCH("/openai", openaiHandler)
 	/// Public routes
 	router.OPTIONS("/v1/chat/completions", optionsHandler)
 	router.POST("/v1/chat/completions", Authorization, nightmare)
