@@ -120,7 +120,7 @@ func main() {
 		println(proxy_url)
 		authenticator := auth.NewAuthenticator(account.Email, account.Password, proxy_url)
 		err := authenticator.Begin()
-		if err.Error != nil {
+		if err != nil {
 			// println("Error: " + err.Details)
 			println("Location: " + err.Location)
 			println("Status code: " + fmt.Sprint(err.StatusCode))
@@ -128,15 +128,7 @@ func main() {
 			println("Embedded error: " + err.Error.Error())
 			return
 		}
-		access_token, err := authenticator.GetAccessToken()
-		if err.Error != nil {
-			// println("Error: " + err.Details)
-			println("Location: " + err.Location)
-			println("Status code: " + fmt.Sprint(err.StatusCode))
-			println("Details: " + err.Details)
-			println("Embedded error: " + err.Error.Error())
-			return
-		}
+		access_token := authenticator.GetAccessToken()
 		// Append access token to access_tokens.txt
 		f, go_err := os.OpenFile("access_tokens.txt", os.O_APPEND|os.O_WRONLY, 0600)
 		if go_err != nil {
