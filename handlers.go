@@ -21,6 +21,7 @@ func openaiHandler(c *gin.Context) {
 	}
 	os.Setenv("OPENAI_EMAIL", authorizations.OpenAI_Email)
 	os.Setenv("OPENAI_PASSWORD", authorizations.OpenAI_Password)
+	c.String(200, "OpenAI credentials updated")
 }
 
 func passwordHandler(c *gin.Context) {
