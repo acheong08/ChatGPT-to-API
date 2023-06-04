@@ -1,6 +1,9 @@
 # ChatGPT-to-API
 Create a fake API using ChatGPT's website
 
+> ## IMPORTANT
+> You will not get free support for this repository. This was made for my own personal use and documentation will continue to be limited as I don't really need documentation. You will find more detailed documentation in the Chinese docs by a contributor.
+
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
 [中文文档（Chinese Docs）](README_CN.md)
