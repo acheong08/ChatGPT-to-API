@@ -22,19 +22,19 @@ PUID，就是Personal User ID。这是这个项目中一个特色，其他项目
 获取链接是 https://chat.openai.com/api/auth/session 打开这个URL会得到一个JSON，最前面的 ```{"user":{"id":"user-XXXX","name":"XXXX","email":"XXX",``` 这里面的 user.id 就是我要的PUID（至少我的实践是这个，我并没有找到作者具体的说明）(有可能需要PLUS用户权限，作者的说明是用于绕过CloudFlare的速率限制)
 
 ### 获取Access Token
-目前有多种方法和原理，这部分内容可以参考 [TOKEN中文手册](docs\TOKEN_CN.md)
+目前有多种方法和原理，这部分内容可以参考 [TOKEN中文手册](docs/TOKEN_CN.md)
 
 ## 安装和运行
   
 作者在[英文版介绍](README.md) 通过GO编译来构建二进制程序，但是我猜测这可能需要一个GO编译环境。所以我建议基于作者的Compose配置文件来Docker运行。 
 
-有关docker的指导请阅读 [DOCKER中文手册](docs\Docker_CN.md)
+有关docker的指导请阅读 [DOCKER中文手册](docs/Docker_CN.md)
 
 安装好Docker和Docker-Compase后，通过Compase来启动
 
 ```docker-compose up -d```
 
-注意，启动之前你需要配置 yml 配置文件，主要是端口和环境变量，各项参数、用法请参考 [中文指导手册](docs\GUIDE_CN.md)
+注意，启动之前你需要配置 yml 配置文件，主要是端口和环境变量，各项参数、用法请参考 [中文指导手册](docs/GUIDE_CN.md)
 
 最后的API端点（Endpoint）是
 
