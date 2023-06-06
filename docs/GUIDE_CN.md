@@ -12,7 +12,7 @@
 
 有关Token的指导请阅读 [TOKEN中文手册](TOKEN_CN.md)
 
-## Docker-Compase配置
+## Docker-Compose配置
 
 ```
 version: '3'
@@ -63,7 +63,7 @@ services:
 
 GO-ChatGPT-API项目 https://github.com/linweiyuan/go-chatgpt-api
 
-我是注释掉 ##- GO_CHATGPT_API_PROXY= 的环境变量、换个外部端口后用Docker-Compase启动即可。然后不需要对这个代理接口做其他操作，包括登录。
+我是注释掉 ##- GO_CHATGPT_API_PROXY= 的环境变量、换个外部端口后用Docker-Compose启动即可。然后不需要对这个代理接口做其他操作，包括登录。
 
 搭建好之后最好测试下基本调用能不能用，下面是一个示例，你需要根据实际情况修改。
 
