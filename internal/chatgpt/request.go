@@ -65,7 +65,7 @@ func random_int(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func send_request(message chatgpt_types.ChatGPTRequest, access_token string) (*http.Response, error) {
+func Send_request(message chatgpt_types.ChatGPTRequest, access_token string) (*http.Response, error) {
 	if http_proxy != "" && len(proxies) == 0 {
 		client.SetProxy(http_proxy)
 	}
@@ -106,21 +106,12 @@ func send_request(message chatgpt_types.ChatGPTRequest, access_token string) (*h
 	return response, err
 }
 
-func Handler(c *gin.Context, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, bool) {
-	max_tokens := false
-	response, err := send_request(translated_request, token)
-	if err != nil {
-		c.JSON(response.StatusCode, gin.H{
-			"error":   "error sending request",
-			"message": response.Status,
-		})
-		return "", false
-	}
-	defer response.Body.Close()
+// Returns whether an error was handled
+func handle_request_error(c *gin.Context, response *http.Response) bool {
 	if response.StatusCode != 200 {
 		// Try read response body as JSON
 		var error_response map[string]interface{}
-		err = json.NewDecoder(response.Body).Decode(&error_response)
+		err := json.NewDecoder(response.Body).Decode(&error_response)
 		if err != nil {
 			// Read response body
 			body, _ := io.ReadAll(response.Body)
@@ -131,7 +122,7 @@ func Handler(c *gin.Context, token string, translated_request chatgpt_types.Chat
 				"code":    "500",
 				"details": string(body),
 			}})
-			return "", false
+			return true
 		}
 		c.JSON(response.StatusCode, gin.H{"error": gin.H{
 			"message": error_response["detail"],
@@ -139,8 +130,26 @@ func Handler(c *gin.Context, token string, translated_request chatgpt_types.Chat
 			"param":   nil,
 			"code":    "error",
 		}})
+		return true
+	}
+	return false
+}
+
+func Handler(c *gin.Context, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, bool) {
+	max_tokens := false
+	response, err := Send_request(translated_request, token)
+	if err != nil {
+		c.JSON(response.StatusCode, gin.H{
+			"error":   "error sending request",
+			"message": response.Status,
+		})
 		return "", false
 	}
+	defer response.Body.Close()
+	if handle_request_error(c, response) {
+		return "", false
+	}
+
 	// Create a bufio.Reader from the response body
 	reader := bufio.NewReader(response.Body)
 
