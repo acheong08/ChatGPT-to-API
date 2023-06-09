@@ -156,6 +156,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 	}
 	var finish_reason string
 	var original_response chatgpt_types.ChatGPTResponse
+	counter := 0
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -175,12 +176,18 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
+				println("Failed to parse JSON")
 				continue
 			}
 			if original_response.Error != nil {
+				c.JSON(500, gin.H{"error": original_response.Error})
 				return "", nil
 			}
-			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil || original_response.Message.Metadata.Timestamp == "absolute" {
+			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
+				continue
+			}
+			if counter < 3 {
+				counter++
 				continue
 			}
 			response_string := chatgpt_response_converter.ConvertToString(&original_response)

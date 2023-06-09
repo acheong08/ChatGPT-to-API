@@ -33,6 +33,8 @@ type Metadata struct {
 	Timestamp     string         `json:"timestamp_"`
 	MessageType   string         `json:"message_type"`
 	FinishDetails *FinishDetails `json:"finish_details"`
+	ModelSlug     string         `json:"model_slug"`
+	Recipient     string         `json:"recipient"`
 }
 
 type FinishDetails struct {
