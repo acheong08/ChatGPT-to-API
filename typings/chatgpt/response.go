@@ -30,7 +30,12 @@ type Author struct {
 }
 
 type Metadata struct {
-	Timestamp     string      `json:"timestamp_"`
-	MessageType   interface{} `json:"message_type"`
-	FinishDetails interface{} `json:"finish_details"`
+	Timestamp     string         `json:"timestamp_"`
+	MessageType   string         `json:"message_type"`
+	FinishDetails *FinishDetails `json:"finish_details"`
+}
+
+type FinishDetails struct {
+	Type string `json:"type"`
+	Stop string `json:"stop"`
 }

@@ -5,12 +5,20 @@ import (
 	"bytes"
 	"encoding/json"
 	chatgpt_types "freechatgpt/typings/chatgpt"
+	"io"
 	"math/rand"
 	"os"
 	"strings"
 
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
+	"github.com/gin-gonic/gin"
+
+	chatgpt_response_converter "freechatgpt/conversion/response/chatgpt"
+
+	// chatgpt "freechatgpt/internal/chatgpt"
+
+	official_types "freechatgpt/typings/official"
 )
 
 var proxies []string
@@ -57,7 +65,7 @@ func random_int(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func SendRequest(message chatgpt_types.ChatGPTRequest, access_token string) (*http.Response, error) {
+func send_request(message chatgpt_types.ChatGPTRequest, access_token string) (*http.Response, error) {
 	if http_proxy != "" && len(proxies) == 0 {
 		client.SetProxy(http_proxy)
 	}
@@ -96,4 +104,99 @@ func SendRequest(message chatgpt_types.ChatGPTRequest, access_token string) (*ht
 	}
 	response, err := client.Do(request)
 	return response, err
+}
+
+func Handler(c *gin.Context, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, bool) {
+	response, err := send_request(translated_request, token)
+	if err != nil {
+		c.JSON(response.StatusCode, gin.H{
+			"error":   "error sending request",
+			"message": response.Status,
+		})
+		return "", false
+	}
+	defer response.Body.Close()
+	if response.StatusCode != 200 {
+		// Try read response body as JSON
+		var error_response map[string]interface{}
+		err = json.NewDecoder(response.Body).Decode(&error_response)
+		if err != nil {
+			// Read response body
+			body, _ := io.ReadAll(response.Body)
+			c.JSON(500, gin.H{"error": gin.H{
+				"message": "Unknown error",
+				"type":    "internal_server_error",
+				"param":   nil,
+				"code":    "500",
+				"details": string(body),
+			}})
+			return "", false
+		}
+		c.JSON(response.StatusCode, gin.H{"error": gin.H{
+			"message": error_response["detail"],
+			"type":    response.Status,
+			"param":   nil,
+			"code":    "error",
+		}})
+		return "", false
+	}
+	// Create a bufio.Reader from the response body
+	reader := bufio.NewReader(response.Body)
+
+	// Read the response byte by byte until a newline character is encountered
+	if stream {
+		// Response content type is text/event-stream
+		c.Header("Content-Type", "text/event-stream")
+	} else {
+		// Response content type is application/json
+		c.Header("Content-Type", "application/json")
+	}
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return "", false
+		}
+		if len(line) < 6 {
+			continue
+		}
+		// Remove "data: " from the beginning of the line
+		line = line[6:]
+		// Check if line starts with [DONE]
+		if !strings.HasPrefix(line, "[DONE]") {
+			// Parse the line as JSON
+			var original_response chatgpt_types.ChatGPTResponse
+			err = json.Unmarshal([]byte(line), &original_response)
+			if err != nil {
+				continue
+			}
+			if original_response.Error != nil {
+				return "", false
+			}
+			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
+				continue
+			}
+			if stream {
+				_, err = c.Writer.WriteString(chatgpt_response_converter.ConvertToString(&original_response))
+				if err != nil {
+					return "", false
+				}
+			}
+			// Flush the response writer buffer to ensure that the client receives each line as it's written
+			c.Writer.Flush()
+
+		} else {
+			if stream {
+				final_line := official_types.StopChunk()
+				c.Writer.WriteString("data: " + final_line.String() + "\n\n")
+
+				c.String(200, "data: [DONE]\n\n")
+				return "", false
+
+			}
+		}
+	}
+	return chatgpt_response_converter.Previous_text, false
 }
