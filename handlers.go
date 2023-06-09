@@ -85,8 +85,6 @@ func nightmare(c *gin.Context) {
 			"code":    err.Error(),
 		}})
 	}
-	// Convert the chat request to a ChatGPT request
-	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request)
 
 	authHeader := c.GetHeader("Authorization")
 	token := ACCESS_TOKENS.GetToken()
@@ -97,6 +95,8 @@ func nightmare(c *gin.Context) {
 			token = customAccessToken
 		}
 	}
+	// Convert the chat request to a ChatGPT request
+	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request)
 
 	response, err := chatgpt.Send_request(translated_request, token)
 	if err != nil {
@@ -110,8 +110,33 @@ func nightmare(c *gin.Context) {
 	if chatgpt.Handle_request_error(c, response) {
 		return
 	}
-
-	full_response, _ := chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
+	var full_response string
+	for i := 3; i > 0; i-- {
+		var continue_info *chatgpt.ContinueInfo
+		var response_part string
+		response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
+		full_response += response_part
+		if continue_info == nil {
+			break
+		}
+		println("Continuing conversation")
+		translated_request.Messages = nil
+		translated_request.Action = "continue"
+		translated_request.ConversationID = continue_info.ConversationID
+		translated_request.ParentMessageID = continue_info.ParentID
+		response, err = chatgpt.Send_request(translated_request, token)
+		if err != nil {
+			c.JSON(response.StatusCode, gin.H{
+				"error":   "error sending request",
+				"message": response.Status,
+			})
+			return
+		}
+		defer response.Body.Close()
+		if chatgpt.Handle_request_error(c, response) {
+			return
+		}
+	}
 	if !original_request.Stream {
 		c.JSON(200, official_types.NewChatCompletion(full_response))
 	}

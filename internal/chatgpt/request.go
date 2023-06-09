@@ -135,7 +135,12 @@ func Handle_request_error(c *gin.Context, response *http.Response) bool {
 	return false
 }
 
-func Handler(c *gin.Context, response *http.Response, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, bool) {
+type ContinueInfo struct {
+	ConversationID string `json:"conversation_id"`
+	ParentID       string `json:"parent_id"`
+}
+
+func Handler(c *gin.Context, response *http.Response, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, *ContinueInfo) {
 	max_tokens := false
 
 	// Create a bufio.Reader from the response body
@@ -150,13 +155,14 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		c.Header("Content-Type", "application/json")
 	}
 	var finish_reason string
+	var original_response chatgpt_types.ChatGPTResponse
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
-			return "", false
+			return "", nil
 		}
 		if len(line) < 6 {
 			continue
@@ -166,13 +172,13 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		// Check if line starts with [DONE]
 		if !strings.HasPrefix(line, "[DONE]") {
 			// Parse the line as JSON
-			var original_response chatgpt_types.ChatGPTResponse
+
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
 				continue
 			}
 			if original_response.Error != nil {
-				return "", false
+				return "", nil
 			}
 			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil || original_response.Message.Metadata.Timestamp == "absolute" {
 				continue
@@ -181,7 +187,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			if stream {
 				_, err = c.Writer.WriteString(response_string)
 				if err != nil {
-					return "", false
+					return "", nil
 				}
 			}
 			// Flush the response writer buffer to ensure that the client receives each line as it's written
@@ -203,5 +209,11 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			}
 		}
 	}
-	return chatgpt_response_converter.Previous_text, max_tokens
+	if !max_tokens {
+		return chatgpt_response_converter.Previous_text, nil
+	}
+	return chatgpt_response_converter.Previous_text, &ContinueInfo{
+		ConversationID: original_response.ConversationID,
+		ParentID:       original_response.Message.ID,
+	}
 }
