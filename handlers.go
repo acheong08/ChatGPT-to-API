@@ -139,6 +139,8 @@ func nightmare(c *gin.Context) {
 	}
 	if !original_request.Stream {
 		c.JSON(200, official_types.NewChatCompletion(full_response))
+	} else {
+		c.String(200, "data: [DONE]\n\n")
 	}
 
 }

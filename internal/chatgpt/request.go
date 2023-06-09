@@ -211,8 +211,6 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			if stream {
 				final_line := official_types.StopChunk(finish_reason)
 				c.Writer.WriteString("data: " + final_line.String() + "\n\n")
-
-				c.String(200, "data: [DONE]\n\n")
 			}
 		}
 	}
