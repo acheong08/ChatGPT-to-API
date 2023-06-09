@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	chatgpt_request_converter "freechatgpt/conversion/requests/chatgpt"
 	"freechatgpt/internal/chatgpt"
 	"freechatgpt/internal/tokens"
-	typings "freechatgpt/internal/typings"
-	"freechatgpt/internal/typings/responses"
+	chatgpt_types "freechatgpt/typings/chatgpt"
+	official_types "freechatgpt/typings/official"
 	"io"
 	"os"
 	"strings"
@@ -78,7 +79,7 @@ func optionsHandler(c *gin.Context) {
 	})
 }
 func nightmare(c *gin.Context) {
-	var original_request typings.APIRequest
+	var original_request official_types.APIRequest
 	err := c.BindJSON(&original_request)
 	if err != nil {
 		c.JSON(400, gin.H{"error": gin.H{
@@ -89,7 +90,7 @@ func nightmare(c *gin.Context) {
 		}})
 	}
 	// Convert the chat request to a ChatGPT request
-	translated_request := chatgpt.ConvertAPIRequest(original_request)
+	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request)
 
 	authHeader := c.GetHeader("Authorization")
 	token := ACCESS_TOKENS.GetToken()
@@ -163,7 +164,7 @@ func nightmare(c *gin.Context) {
 		// Check if line starts with [DONE]
 		if !strings.HasPrefix(line, "[DONE]") {
 			// Parse the line as JSON
-			var original_response responses.Data
+			var original_response chatgpt_types.ChatGPTResponse
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
 				continue
@@ -182,7 +183,7 @@ func nightmare(c *gin.Context) {
 			}
 			tmp_fulltext := original_response.Message.Content.Parts[0]
 			original_response.Message.Content.Parts[0] = strings.ReplaceAll(original_response.Message.Content.Parts[0], fulltext, "")
-			translated_response := responses.NewChatCompletionChunk(original_response.Message.Content.Parts[0])
+			translated_response := official_types.NewChatCompletionChunk(original_response.Message.Content.Parts[0])
 
 			// Stream the response to the client
 			response_string := translated_response.String()
@@ -198,14 +199,14 @@ func nightmare(c *gin.Context) {
 			fulltext = tmp_fulltext
 		} else {
 			if !original_request.Stream {
-				full_response := responses.NewChatCompletion(fulltext)
+				full_response := official_types.NewChatCompletion(fulltext)
 				if err != nil {
 					return
 				}
 				c.JSON(200, full_response)
 				return
 			}
-			final_line := responses.StopChunk()
+			final_line := official_types.StopChunk()
 			c.Writer.WriteString("data: " + final_line.String() + "\n\n")
 
 			c.String(200, "data: [DONE]\n\n")

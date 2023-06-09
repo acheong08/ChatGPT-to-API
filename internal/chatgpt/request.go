@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	chatgpt_types "freechatgpt/typings/chatgpt"
 	"math/rand"
 	"os"
 	"strings"
@@ -56,7 +57,7 @@ func random_int(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func SendRequest(message ChatGPTRequest, access_token string) (*http.Response, error) {
+func SendRequest(message chatgpt_types.ChatGPTRequest, access_token string) (*http.Response, error) {
 	if http_proxy != "" && len(proxies) == 0 {
 		client.SetProxy(http_proxy)
 	}
