@@ -3,15 +3,16 @@
 本中文手册由 [@BlueSkyXN](https://github.com/BlueSkyXN) 编写
 
 
-[中文文档（Chinese Docs）](README_CN.md)   [英文文档（English Docs）](README.md)
+[中文文档（Chinese Docs）](../README_CN.md)  
+ [英文文档（English Docs）](../README.md)
 
 # 基本配置
 
-有关docker的指导请阅读 [DOCKER中文手册](docs\Docker_CN.md)
+有关docker的指导请阅读 [DOCKER中文手册](Docker_CN.md)
 
-有关Token的指导请阅读 [TOKEN中文手册](docs\TOKEN_CN.md)
+有关Token的指导请阅读 [TOKEN中文手册](TOKEN_CN.md)
 
-## Docker-Compase配置
+## Docker-Compose配置
 
 ```
 version: '3'
@@ -35,7 +36,7 @@ services:
 - Server host/port：监听配置，默认0000监听某一端口。
 - ADMIN_PASSWORD：管理员密码，HTTP请求时候需要验证。
 - API_REVERSE_PROXY:接口的反向代理，具体介绍请看下文的后端代理介绍部分。
-- PUID: user-X，请看[中文文档（Chinese Docs）](README_CN.md) 的介绍
+- PUID: user-X，请看[中文文档（Chinese Docs）](../README_CN.md) 的介绍
 
 其他可以不需要设置，包括预设的AccessToken和代理表、HTTP/S5代理。
 
@@ -62,7 +63,7 @@ services:
 
 GO-ChatGPT-API项目 https://github.com/linweiyuan/go-chatgpt-api
 
-我是注释掉 ##- GO_CHATGPT_API_PROXY= 的环境变量、换个外部端口后用Docker-Compase启动即可。然后不需要对这个代理接口做其他操作，包括登录。
+我是注释掉 ##- GO_CHATGPT_API_PROXY= 的环境变量、换个外部端口后用Docker-Compose启动即可。然后不需要对这个代理接口做其他操作，包括登录。
 
 搭建好之后最好测试下基本调用能不能用，下面是一个示例，你需要根据实际情况修改。
 
