@@ -107,6 +107,7 @@ func send_request(message chatgpt_types.ChatGPTRequest, access_token string) (*h
 }
 
 func Handler(c *gin.Context, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, bool) {
+	max_tokens := false
 	response, err := send_request(translated_request, token)
 	if err != nil {
 		c.JSON(response.StatusCode, gin.H{
@@ -151,6 +152,7 @@ func Handler(c *gin.Context, token string, translated_request chatgpt_types.Chat
 		// Response content type is application/json
 		c.Header("Content-Type", "application/json")
 	}
+	var finish_reason string
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -188,16 +190,21 @@ func Handler(c *gin.Context, token string, translated_request chatgpt_types.Chat
 			// Flush the response writer buffer to ensure that the client receives each line as it's written
 			c.Writer.Flush()
 
+			if original_response.Message.Metadata.FinishDetails != nil {
+				if original_response.Message.Metadata.FinishDetails.Type == "max_tokens" {
+					max_tokens = true
+				}
+				finish_reason = original_response.Message.Metadata.FinishDetails.Type
+			}
+
 		} else {
 			if stream {
-				final_line := official_types.StopChunk()
+				final_line := official_types.StopChunk(finish_reason)
 				c.Writer.WriteString("data: " + final_line.String() + "\n\n")
 
 				c.String(200, "data: [DONE]\n\n")
-				return "", false
-
 			}
 		}
 	}
-	return chatgpt_response_converter.Previous_text, false
+	return chatgpt_response_converter.Previous_text, max_tokens
 }

@@ -45,7 +45,7 @@ func NewChatCompletionChunk(text string) ChatCompletionChunk {
 	}
 }
 
-func StopChunk() ChatCompletionChunk {
+func StopChunk(reason string) ChatCompletionChunk {
 	return ChatCompletionChunk{
 		ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
 		Object:  "chat.completion.chunk",
@@ -54,7 +54,7 @@ func StopChunk() ChatCompletionChunk {
 		Choices: []Choices{
 			{
 				Index:        0,
-				FinishReason: "stop",
+				FinishReason: reason,
 			},
 		},
 	}
