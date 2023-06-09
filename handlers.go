@@ -98,7 +98,20 @@ func nightmare(c *gin.Context) {
 		}
 	}
 
-	full_response, _ := chatgpt.Handler(c, token, translated_request, original_request.Stream)
+	response, err := chatgpt.Send_request(translated_request, token)
+	if err != nil {
+		c.JSON(response.StatusCode, gin.H{
+			"error":   "error sending request",
+			"message": response.Status,
+		})
+		return
+	}
+	defer response.Body.Close()
+	if chatgpt.Handle_request_error(c, response) {
+		return
+	}
+
+	full_response, _ := chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
 	if !original_request.Stream {
 		c.JSON(200, official_types.NewChatCompletion(full_response))
 	}

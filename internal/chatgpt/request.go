@@ -107,7 +107,7 @@ func Send_request(message chatgpt_types.ChatGPTRequest, access_token string) (*h
 }
 
 // Returns whether an error was handled
-func handle_request_error(c *gin.Context, response *http.Response) bool {
+func Handle_request_error(c *gin.Context, response *http.Response) bool {
 	if response.StatusCode != 200 {
 		// Try read response body as JSON
 		var error_response map[string]interface{}
@@ -135,20 +135,8 @@ func handle_request_error(c *gin.Context, response *http.Response) bool {
 	return false
 }
 
-func Handler(c *gin.Context, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, bool) {
+func Handler(c *gin.Context, response *http.Response, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, bool) {
 	max_tokens := false
-	response, err := Send_request(translated_request, token)
-	if err != nil {
-		c.JSON(response.StatusCode, gin.H{
-			"error":   "error sending request",
-			"message": response.Status,
-		})
-		return "", false
-	}
-	defer response.Body.Close()
-	if handle_request_error(c, response) {
-		return "", false
-	}
 
 	// Create a bufio.Reader from the response body
 	reader := bufio.NewReader(response.Body)
