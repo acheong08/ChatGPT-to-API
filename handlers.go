@@ -98,6 +98,9 @@ func nightmare(c *gin.Context) {
 		}
 	}
 
-	chatgpt.Handler(c, token, translated_request, original_request.Stream)
+	full_response, _ := chatgpt.Handler(c, token, translated_request, original_request.Stream)
+	if !original_request.Stream {
+		c.JSON(200, official_types.NewChatCompletion(full_response))
+	}
 
 }

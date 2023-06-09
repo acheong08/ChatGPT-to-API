@@ -175,11 +175,12 @@ func Handler(c *gin.Context, token string, translated_request chatgpt_types.Chat
 			if original_response.Error != nil {
 				return "", false
 			}
-			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
+			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil || original_response.Message.Metadata.Timestamp == "absolute" {
 				continue
 			}
+			response_string := chatgpt_response_converter.ConvertToString(&original_response)
 			if stream {
-				_, err = c.Writer.WriteString(chatgpt_response_converter.ConvertToString(&original_response))
+				_, err = c.Writer.WriteString(response_string)
 				if err != nil {
 					return "", false
 				}
