@@ -21,6 +21,7 @@ type ChatGPTRequest struct {
 	Action                     string            `json:"action"`
 	Messages                   []chatgpt_message `json:"messages"`
 	ParentMessageID            string            `json:"parent_message_id,omitempty"`
+	ConversationID             string            `json:"conversation_id,omitempty"`
 	Model                      string            `json:"model"`
 	HistoryAndTrainingDisabled bool              `json:"history_and_training_disabled"`
 }

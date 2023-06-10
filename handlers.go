@@ -1,18 +1,25 @@
 package main
 
 import (
-	"bufio"
-	"encoding/json"
-	"freechatgpt/internal/chatgpt"
+	chatgpt_request_converter "freechatgpt/conversion/requests/chatgpt"
+	chatgpt "freechatgpt/internal/chatgpt"
 	"freechatgpt/internal/tokens"
-	typings "freechatgpt/internal/typings"
-	"freechatgpt/internal/typings/responses"
-	"io"
+	official_types "freechatgpt/typings/official"
 	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
+
+func openaiHandler(c *gin.Context) {
+	err := c.BindJSON(&authorizations)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "JSON invalid"})
+	}
+	os.Setenv("OPENAI_EMAIL", authorizations.OpenAI_Email)
+	os.Setenv("OPENAI_PASSWORD", authorizations.OpenAI_Password)
+	c.String(200, "OpenAI credentials updated")
+}
 
 func passwordHandler(c *gin.Context) {
 	// Get the password from the request (json) and update the password
@@ -68,7 +75,7 @@ func optionsHandler(c *gin.Context) {
 	})
 }
 func nightmare(c *gin.Context) {
-	var original_request typings.APIRequest
+	var original_request official_types.APIRequest
 	err := c.BindJSON(&original_request)
 	if err != nil {
 		c.JSON(400, gin.H{"error": gin.H{
@@ -78,19 +85,16 @@ func nightmare(c *gin.Context) {
 			"code":    err.Error(),
 		}})
 	}
-	// Convert the chat request to a ChatGPT request
-	translated_request := chatgpt.ConvertAPIRequest(original_request)
-	// c.JSON(200, chatgpt_request)
 
-	// authHeader := c.GetHeader("Authorization")
+	authHeader := c.GetHeader("Authorization")
 	token := ACCESS_TOKENS.GetToken()
-	// if authHeader != "" {
-	// 	customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
-	// 	if customAccessToken != "" {
-	// 		token = customAccessToken
-	// 		println("customAccessToken set:" + customAccessToken)
-	// 	}
-	// }
+	if authHeader != "" {
+		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
+		// Check if customAccessToken starts with sk-
+		if strings.HasPrefix(customAccessToken, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1UaEVOVUpHTkVNMVFURTRNMEZCTWpkQ05UZzVNRFUxUlRVd1FVSkRNRU13UmtGRVFrRXpSZyJ9") {
+			token = customAccessToken
+		}
+	}
 	var proxy_url string
 	if len(proxies) == 0 {
 		proxy_url = ""
@@ -99,7 +103,11 @@ func nightmare(c *gin.Context) {
 		// Push used proxy to the back of the list
 		proxies = append(proxies[1:], proxies[0])
 	}
-	response, err := chatgpt.SendRequest(translated_request, token, proxy_url)
+
+	// Convert the chat request to a ChatGPT request
+	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request)
+
+	response, err := chatgpt.Send_request(translated_request, token, proxy_url)
 	if err != nil {
 		c.JSON(response.StatusCode, gin.H{
 			"error":   "error sending request",
@@ -108,108 +116,40 @@ func nightmare(c *gin.Context) {
 		return
 	}
 	defer response.Body.Close()
-	if response.StatusCode != 200 {
-		// Try read response body as JSON
-		var error_response map[string]interface{}
-		err = json.NewDecoder(response.Body).Decode(&error_response)
-		if err != nil {
-			// Read response body
-			body, _ := io.ReadAll(response.Body)
-			c.JSON(500, gin.H{"error": gin.H{
-				"message": "Unknown error",
-				"type":    "internal_server_error",
-				"param":   nil,
-				"code":    "500",
-				"details": string(body),
-			}})
-			return
-		}
-		c.JSON(response.StatusCode, gin.H{"error": gin.H{
-			"message": error_response["detail"],
-			"type":    response.Status,
-			"param":   nil,
-			"code":    "error",
-		}})
+	if chatgpt.Handle_request_error(c, response) {
 		return
 	}
-	// Create a bufio.Reader from the response body
-	reader := bufio.NewReader(response.Body)
-
-	var fulltext string
-
-	// Read the response byte by byte until a newline character is encountered
-	if original_request.Stream {
-		// Response content type is text/event-stream
-		c.Header("Content-Type", "text/event-stream")
-	} else {
-		// Response content type is application/json
-		c.Header("Content-Type", "application/json")
-	}
-	for {
-		line, err := reader.ReadString('\n')
+	var full_response string
+	for i := 3; i > 0; i-- {
+		var continue_info *chatgpt.ContinueInfo
+		var response_part string
+		response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
+		full_response += response_part
+		if continue_info == nil {
+			break
+		}
+		println("Continuing conversation")
+		translated_request.Messages = nil
+		translated_request.Action = "continue"
+		translated_request.ConversationID = continue_info.ConversationID
+		translated_request.ParentMessageID = continue_info.ParentID
+		response, err = chatgpt.Send_request(translated_request, token, proxy_url)
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
+			c.JSON(response.StatusCode, gin.H{
+				"error":   "error sending request",
+				"message": response.Status,
+			})
 			return
 		}
-		if len(line) < 6 {
-			continue
-		}
-		// Remove "data: " from the beginning of the line
-		line = line[6:]
-		// Check if line starts with [DONE]
-		if !strings.HasPrefix(line, "[DONE]") {
-			// Parse the line as JSON
-			var original_response responses.Data
-			err = json.Unmarshal([]byte(line), &original_response)
-			if err != nil {
-				continue
-			}
-			if original_response.Error != nil {
-				return
-			}
-			if original_response.Message.Content.Parts == nil {
-				continue
-			}
-			if original_response.Message.Content.Parts[0] == "" || original_response.Message.Author.Role != "assistant" {
-				continue
-			}
-			if original_response.Message.Metadata.Timestamp == "absolute" {
-				continue
-			}
-			tmp_fulltext := original_response.Message.Content.Parts[0]
-			original_response.Message.Content.Parts[0] = strings.ReplaceAll(original_response.Message.Content.Parts[0], fulltext, "")
-			translated_response := responses.NewChatCompletionChunk(original_response.Message.Content.Parts[0])
-
-			// Stream the response to the client
-			response_string := translated_response.String()
-			if original_request.Stream {
-				_, err = c.Writer.WriteString("data: " + string(response_string) + "\n\n")
-				if err != nil {
-					return
-				}
-			}
-
-			// Flush the response writer buffer to ensure that the client receives each line as it's written
-			c.Writer.Flush()
-			fulltext = tmp_fulltext
-		} else {
-			if !original_request.Stream {
-				full_response := responses.NewChatCompletion(fulltext)
-				if err != nil {
-					return
-				}
-				c.JSON(200, full_response)
-				return
-			}
-			final_line := responses.StopChunk()
-			c.Writer.WriteString("data: " + final_line.String() + "\n\n")
-
-			c.String(200, "data: [DONE]\n\n")
+		defer response.Body.Close()
+		if chatgpt.Handle_request_error(c, response) {
 			return
-
 		}
+	}
+	if !original_request.Stream {
+		c.JSON(200, official_types.NewChatCompletion(full_response))
+	} else {
+		c.String(200, "data: [DONE]\n\n")
 	}
 
 }

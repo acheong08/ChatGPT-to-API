@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"freechatgpt/internal/tokens"
+
 	"github.com/acheong08/OpenAIAuth/auth"
 )
 
@@ -71,7 +72,7 @@ func updateToken() {
 			println("Embedded error: " + err.Error.Error())
 			return
 		}
-		access_token, err := authenticator.GetAccessToken()
+		access_token := authenticator.GetAccessToken()
 		if err.Error != nil {
 			// println("Error: " + err.Details)
 			println("Location: " + err.Location)

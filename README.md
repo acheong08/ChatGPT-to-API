@@ -1,6 +1,9 @@
 # ChatGPT-to-API
 Create a fake API using ChatGPT's website [中文说明](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/README_ZH.md)
 
+> ## IMPORTANT
+> You will not get free support for this repository. This was made for my own personal use and documentation will continue to be limited as I don't really need documentation. You will find more detailed documentation in the Chinese docs by a contributor.
+
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
 ## Setup
@@ -48,6 +51,7 @@ go build
   - `PUID` - A cookie found on chat.openai.com for Plus users. This gets around Cloudflare rate limits
   - `SERVER_HOST` - Set to 127.0.0.1 by default
   - `SERVER_PORT` - Set to 8080 by default
+  - `OPENAI_EMAIL` and `OPENAI_PASSWORD` - It will automatically refresh your PUID if set (requires Plus account)
 
 ### Files (Optional)
   - `proxies.txt` - A list of proxies separated by new line

@@ -1,4 +1,4 @@
-package types
+package official
 
 type APIRequest struct {
 	Messages []api_message `json:"messages"`
