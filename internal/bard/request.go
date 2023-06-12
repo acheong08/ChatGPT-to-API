@@ -3,7 +3,7 @@ package bard
 import "time"
 
 type BardCache struct {
-	Bards map[string]Bard
+	Bards map[string]*Bard
 }
 
 func GarbageCollectCache(cache *BardCache) {
@@ -18,7 +18,7 @@ var cache *BardCache
 
 func init() {
 	cache = &BardCache{
-		Bards: make(map[string]Bard),
+		Bards: make(map[string]*Bard),
 	}
 	go func() {
 		for {
