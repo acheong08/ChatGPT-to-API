@@ -53,14 +53,10 @@ func init() {
 
 const bardURL string = "https://bard.google.com/_/BardChatUi/data/assistant.lamda.BardFrontendService/StreamGenerate"
 
-type bardAnswer struct {
-	Content           string   `json:"content"`
-	ConversationID    string   `json:"conversationId"`
-	ResponseID        string   `json:"responseId"`
-	ChoiceID          string   `json:"choiceId"`
-	FactualityQueries []string `json:"factualityQueries"`
-	TextQuery         string   `json:"textQuery"`
-	Choices           []string `json:"choices"`
+type Answer struct {
+	Content string `json:"content"`
+	// FactualityQueries []string `json:"factualityQueries"`
+	Choices []string `json:"choices"`
 }
 
 // Bard is the main struct for the Bard AI
@@ -70,7 +66,6 @@ type Bard struct {
 	ConversationID string
 	ResponseID     string
 	SNlM0e         string
-	answer         bardAnswer
 }
 
 // New creates a new Bard AI instance. Cookie is the __Secure-1PSID cookie from Google
@@ -79,7 +74,6 @@ func New(cookie string) (*Bard, error) {
 		Cookie: cookie,
 	}
 	err := b.getSNlM0e()
-	b.answer = bardAnswer{}
 	return b, err
 }
 
@@ -109,7 +103,7 @@ func (b *Bard) getSNlM0e() error {
 }
 
 // Ask generates a Bard AI response and returns it to the user
-func (b *Bard) Ask(prompt string) (string, error) {
+func (b *Bard) Ask(prompt string) (*Answer, error) {
 
 	// req paramters for the actual request
 	reqParams := map[string]string{
@@ -120,7 +114,7 @@ func (b *Bard) Ask(prompt string) (string, error) {
 
 	req := fmt.Sprintf(`[null, "[[\"%s\"], null, [\"%s\", \"%s\", \"%s\"]]"]`,
 		//prompt, b.answer.ConversationID, b.answer.ResponseID, b.answer.ChoiceID)
-		prompt, b.answer.ConversationID, b.answer.ResponseID, b.answer.ChoiceID)
+		prompt, b.ConversationID, b.ResponseID, b.ChoiceID)
 
 	reqData := map[string]string{
 		"f.req": string(req),
@@ -138,12 +132,12 @@ func (b *Bard) Ask(prompt string) (string, error) {
 	resty_client.SetDoNotParseResponse(true)
 	resp, err := resty_client.R().Post("")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if resp.StatusCode() != 200 {
 		// curl, _ := http2curl.GetCurlCommand(resp.Request.EnableTrace().RawRequest)
 		// fmt.Println(curl)
-		return "", fmt.Errorf("status code is not 200: %d", resp.StatusCode())
+		return nil, fmt.Errorf("status code is not 200: %d", resp.StatusCode())
 	}
 
 	// this is the Go version
@@ -156,20 +150,26 @@ func (b *Bard) Ask(prompt string) (string, error) {
 	var fullRes [][]interface{}
 	err = json.Unmarshal([]byte(respJSON), &fullRes)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// get the main answer
 	res, ok := fullRes[0][2].(string)
 	if !ok {
-		return "", fmt.Errorf("failed to get answer from bard")
+		return nil, fmt.Errorf("failed to get answer from bard")
 	}
 
-	b.answer.Content = gjson.Get(res, "0.0").String()
-	b.answer.ConversationID = gjson.Get(res, "1.0").String()
-	b.answer.ResponseID = gjson.Get(res, "1.1").String()
-	choices := gjson.Get(res, "4").Array()
-	b.answer.ChoiceID = choices[0].Array()[0].String()
+	answer := Answer{}
 
-	return b.answer.Content, nil
+	answer.Content = gjson.Get(res, "0.0").String()
+	b.ConversationID = gjson.Get(res, "1.0").String()
+	b.ResponseID = gjson.Get(res, "1.1").String()
+	choices := gjson.Get(res, "4").Array()
+	answer.Choices = make([]string, len(choices))
+	for i, choice := range choices {
+		answer.Choices[i] = choice.Array()[0].String()
+	}
+	b.ChoiceID = choices[0].Array()[0].String()
+
+	return &answer, nil
 }
