@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"freechatgpt/typings"
 	chatgpt_types "freechatgpt/typings/chatgpt"
 	"io"
 	"math/rand"
@@ -155,6 +156,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		c.Header("Content-Type", "application/json")
 	}
 	var finish_reason string
+	var previous_text typings.StringStruct
 	var original_response chatgpt_types.ChatGPTResponse
 	counter := 0
 	for {
@@ -191,7 +193,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 				counter++
 				continue
 			}
-			response_string := chatgpt_response_converter.ConvertToString(&original_response)
+			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text)
 			if stream {
 				_, err = c.Writer.WriteString(response_string)
 				if err != nil {
@@ -216,9 +218,9 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		}
 	}
 	if !max_tokens {
-		return chatgpt_response_converter.Previous_text, nil
+		return previous_text.Text, nil
 	}
-	return chatgpt_response_converter.Previous_text, &ContinueInfo{
+	return previous_text.Text, &ContinueInfo{
 		ConversationID: original_response.ConversationID,
 		ParentID:       original_response.Message.ID,
 	}
