@@ -5,7 +5,7 @@ Fetches access tokens from a large number of accounts
 ### `proxies.txt`
 Format:
 ```
-IP:HOST:User:Password
+IP:Port:User:Password
 ...
 ```
 
