@@ -61,11 +61,12 @@ type Answer struct {
 
 // Bard is the main struct for the Bard AI
 type Bard struct {
-	Cookie         string
-	ChoiceID       string
-	ConversationID string
-	ResponseID     string
-	SNlM0e         string
+	Cookie              string
+	ChoiceID            string
+	ConversationID      string
+	ResponseID          string
+	SNlM0e              string
+	LastInteractionTime time.Time
 }
 
 // New creates a new Bard AI instance. Cookie is the __Secure-1PSID cookie from Google
@@ -104,6 +105,7 @@ func (b *Bard) getSNlM0e() error {
 
 // Ask generates a Bard AI response and returns it to the user
 func (b *Bard) Ask(prompt string) (*Answer, error) {
+	b.LastInteractionTime = time.Now()
 
 	// req paramters for the actual request
 	reqParams := map[string]string{
