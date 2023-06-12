@@ -27,7 +27,7 @@ var (
 	jar     = tls_client.NewCookieJar()
 	options = []tls_client.HttpClientOption{
 		tls_client.WithTimeoutSeconds(360),
-		tls_client.WithClientProfile(tls_client.Firefox_110),
+		tls_client.WithClientProfile(tls_client.Safari_IOS_15_5),
 		tls_client.WithNotFollowRedirects(),
 		tls_client.WithCookieJar(jar), // create cookieJar instance and pass it as argument
 		// Disable SSL verification
@@ -177,6 +177,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
 				println("Failed to parse JSON")
+				println(line)
 				continue
 			}
 			if original_response.Error != nil {
