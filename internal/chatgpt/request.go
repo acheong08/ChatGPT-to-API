@@ -188,6 +188,9 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
 				continue
 			}
+			if original_response.Message.Metadata.MessageType != "next" {
+				continue
+			}
 			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text)
 			if stream {
 				_, err = c.Writer.WriteString(response_string)
