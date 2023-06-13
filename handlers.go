@@ -125,9 +125,8 @@ func nightmare(c *gin.Context) {
 		translated_request.ParentMessageID = continue_info.ParentID
 		response, err = chatgpt.Send_request(translated_request, token)
 		if err != nil {
-			c.JSON(response.StatusCode, gin.H{
-				"error":   "error sending request",
-				"message": response.Status,
+			c.JSON(500, gin.H{
+				"error": "error sending request",
 			})
 			return
 		}
