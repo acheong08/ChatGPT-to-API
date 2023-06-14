@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,14 +14,16 @@ import (
 	"github.com/acheong08/OpenAIAuth/auth"
 )
 
+var accounts []Account
+
 type Account struct {
 	Email    string `json:"username"`
 	Password string `json:"password"`
 }
 
 // Read accounts.txt and create a list of accounts
-func readAccounts() []Account {
-	accounts := []Account{}
+func readAccounts() {
+	accounts = []Account{}
 	// Read accounts.txt and create a list of accounts
 	if _, err := os.Stat("accounts.txt"); err == nil {
 		// Each line is a proxy, put in proxies array
@@ -39,11 +42,48 @@ func readAccounts() []Account {
 			accounts = append(accounts, account)
 		}
 	}
-	return accounts
+}
+func scheduleToken() {
+	// Check if access_tokens.json exists
+	if stat, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
+		// Create the file
+		file, err := os.Create("access_tokens.json")
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+		updateToken()
+	} else {
+		nowTime := time.Now()
+		usedTime := nowTime.Sub(stat.ModTime())
+		// update access token 20 days after last modify token file
+		toExpire := 1.728e15 - usedTime
+		if toExpire > 0 {
+			file, err := os.Open("access_tokens.json")
+			if err != nil {
+				panic(err)
+			}
+			defer file.Close()
+			decoder := json.NewDecoder(file)
+			var token_list []string
+			err = decoder.Decode(&token_list)
+			if err != nil {
+				updateToken()
+				return
+			}
+			if len(token_list) == 0 {
+				updateToken()
+			} else {
+				ACCESS_TOKENS = tokens.NewAccessToken(token_list, false)
+				time.AfterFunc(toExpire, updateToken)
+			}
+		} else {
+			updateToken()
+		}
+	}
 }
 
 func updateToken() {
-	accounts := readAccounts()
 	token_list := []string{}
 	// Loop through each account
 	for _, account := range accounts {
@@ -64,7 +104,7 @@ func updateToken() {
 		}
 		authenticator := auth.NewAuthenticator(account.Email, account.Password, proxy_url)
 		err := authenticator.Begin()
-		if err.Error != nil {
+		if err != nil {
 			// println("Error: " + err.Details)
 			println("Location: " + err.Location)
 			println("Status code: " + fmt.Sprint(err.StatusCode))
@@ -73,13 +113,6 @@ func updateToken() {
 			return
 		}
 		access_token := authenticator.GetAccessToken()
-		if err.Error != nil {
-			// println("Error: " + err.Details)
-			println("Location: " + err.Location)
-			println("Status code: " + fmt.Sprint(err.StatusCode))
-			println("Embedded error: " + err.Error.Error())
-			return
-		}
 		token_list = append(token_list, access_token)
 		println("Success!")
 		// Write authenticated account to authenticated_accounts.txt

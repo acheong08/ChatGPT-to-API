@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"freechatgpt/internal/tokens"
 	"log"
 	"os"
@@ -76,43 +75,8 @@ func init() {
 		PORT = "8080"
 	}
 	checkProxy()
-	// Check if access_tokens.json exists
-	if stat, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
-		// Create the file
-		file, err := os.Create("access_tokens.json")
-		if err != nil {
-			panic(err)
-		}
-		defer file.Close()
-		updateToken()
-	} else {
-		nowTime := time.Now()
-		usedTime := nowTime.Sub(stat.ModTime())
-		// update access token 20 days after last modify token file
-		toExpire := 1.728e15 - usedTime
-		if toExpire > 0 {
-			file, err := os.Open("access_tokens.json")
-			if err != nil {
-				panic(err)
-			}
-			defer file.Close()
-			decoder := json.NewDecoder(file)
-			var token_list []string
-			err = decoder.Decode(&token_list)
-			if err != nil {
-				updateToken()
-				return
-			}
-			if len(token_list) == 0 {
-				updateToken()
-			} else {
-				ACCESS_TOKENS = tokens.NewAccessToken(token_list, false)
-				time.AfterFunc(toExpire, updateToken)
-			}
-		} else {
-			updateToken()
-		}
-	}
+	readAccounts()
+	scheduleToken()
 }
 func main() {
 	router := gin.Default()
