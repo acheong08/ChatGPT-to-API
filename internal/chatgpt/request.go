@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"freechatgpt/typings"
 	chatgpt_types "freechatgpt/typings/chatgpt"
 	"io"
 	"os"
@@ -24,7 +25,7 @@ var (
 	jar     = tls_client.NewCookieJar()
 	options = []tls_client.HttpClientOption{
 		tls_client.WithTimeoutSeconds(360),
-		tls_client.WithClientProfile(tls_client.Firefox_110),
+		tls_client.WithClientProfile(tls_client.Safari_IOS_15_5),
 		tls_client.WithNotFollowRedirects(),
 		tls_client.WithCookieJar(jar), // create cookieJar instance and pass it as argument
 		// Disable SSL verification
@@ -120,8 +121,8 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		c.Header("Content-Type", "application/json")
 	}
 	var finish_reason string
+	var previous_text typings.StringStruct
 	var original_response chatgpt_types.ChatGPTResponse
-	counter := 0
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -142,6 +143,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
 				println("Failed to parse JSON")
+				println(line)
 				continue
 			}
 			if original_response.Error != nil {
@@ -151,11 +153,10 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
 				continue
 			}
-			if counter < 3 {
-				counter++
+			if original_response.Message.Metadata.MessageType != "next" {
 				continue
 			}
-			response_string := chatgpt_response_converter.ConvertToString(&original_response)
+			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text)
 			if stream {
 				_, err = c.Writer.WriteString(response_string)
 				if err != nil {
@@ -180,9 +181,9 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		}
 	}
 	if !max_tokens {
-		return chatgpt_response_converter.Previous_text, nil
+		return previous_text.Text, nil
 	}
-	return chatgpt_response_converter.Previous_text, &ContinueInfo{
+	return previous_text.Text, &ContinueInfo{
 		ConversationID: original_response.ConversationID,
 		ParentID:       original_response.Message.ID,
 	}

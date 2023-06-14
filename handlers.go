@@ -109,9 +109,8 @@ func nightmare(c *gin.Context) {
 
 	response, err := chatgpt.Send_request(translated_request, token, proxy_url)
 	if err != nil {
-		c.JSON(response.StatusCode, gin.H{
-			"error":   "error sending request",
-			"message": response.Status,
+		c.JSON(500, gin.H{
+			"error": "error sending request",
 		})
 		return
 	}
@@ -120,7 +119,7 @@ func nightmare(c *gin.Context) {
 		return
 	}
 	var full_response string
-	for i := 3; i > 0; i-- {
+	for i := 2; i > 0; i-- {
 		var continue_info *chatgpt.ContinueInfo
 		var response_part string
 		response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
@@ -135,9 +134,8 @@ func nightmare(c *gin.Context) {
 		translated_request.ParentMessageID = continue_info.ParentID
 		response, err = chatgpt.Send_request(translated_request, token, proxy_url)
 		if err != nil {
-			c.JSON(response.StatusCode, gin.H{
-				"error":   "error sending request",
-				"message": response.Status,
+			c.JSON(500, gin.H{
+				"error": "error sending request",
 			})
 			return
 		}
