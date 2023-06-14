@@ -24,6 +24,7 @@ type ChatGPTRequest struct {
 	ConversationID             string            `json:"conversation_id,omitempty"`
 	Model                      string            `json:"model"`
 	HistoryAndTrainingDisabled bool              `json:"history_and_training_disabled"`
+	ArkoseToken                string            `json:"arkose_token,omitempty"`
 }
 
 func NewChatGPTRequest() ChatGPTRequest {
