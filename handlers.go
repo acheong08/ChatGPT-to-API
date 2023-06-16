@@ -12,12 +12,22 @@ import (
 )
 
 func openaiHandler(c *gin.Context) {
+	var authorizations struct {
+		OpenAI_Email     string `json:"openai_email"`
+		OpenAI_Password  string `json:"openai_password"`
+		Official_API_Key string `json:"official_api_key"`
+	}
 	err := c.BindJSON(&authorizations)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "JSON invalid"})
 	}
-	os.Setenv("OPENAI_EMAIL", authorizations.OpenAI_Email)
-	os.Setenv("OPENAI_PASSWORD", authorizations.OpenAI_Password)
+	if authorizations.OpenAI_Email != "" && authorizations.OpenAI_Password != "" {
+		os.Setenv("OPENAI_EMAIL", authorizations.OpenAI_Email)
+		os.Setenv("OPENAI_PASSWORD", authorizations.OpenAI_Password)
+	}
+	if authorizations.Official_API_Key != "" {
+		os.Setenv("OFFICIAL_API_KEY", authorizations.Official_API_Key)
+	}
 	c.String(200, "OpenAI credentials updated")
 }
 
@@ -98,7 +108,7 @@ func nightmare(c *gin.Context) {
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request)
 
-	response, err := chatgpt.Send_request(translated_request, token)
+	response, err := chatgpt.POSTconversation(translated_request, token)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "error sending request",
@@ -123,7 +133,7 @@ func nightmare(c *gin.Context) {
 		translated_request.Action = "continue"
 		translated_request.ConversationID = continue_info.ConversationID
 		translated_request.ParentMessageID = continue_info.ParentID
-		response, err = chatgpt.Send_request(translated_request, token)
+		response, err = chatgpt.POSTconversation(translated_request, token)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": "error sending request",
@@ -141,4 +151,15 @@ func nightmare(c *gin.Context) {
 		c.String(200, "data: [DONE]\n\n")
 	}
 
+}
+
+func engines_handler(c *gin.Context) {
+	resp, status, err := chatgpt.GETengines()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": "error sending request",
+		})
+		return
+	}
+	c.JSON(status, resp)
 }

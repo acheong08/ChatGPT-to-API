@@ -66,7 +66,7 @@ func random_int(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func Send_request(message chatgpt_types.ChatGPTRequest, access_token string) (*http.Response, error) {
+func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string) (*http.Response, error) {
 	if http_proxy != "" && len(proxies) == 0 {
 		client.SetProxy(http_proxy)
 	}
@@ -222,4 +222,18 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		ConversationID: original_response.ConversationID,
 		ParentID:       original_response.Message.ID,
 	}
+}
+
+func GETengines() (interface{}, int, error) {
+	url := "https://api.openai.com/v1/engines"
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("Authorization", "Bearer "+os.Getenv("OFFICIAL_API_KEY"))
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+	var result interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	return result, resp.StatusCode, nil
 }
