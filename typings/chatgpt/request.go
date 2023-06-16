@@ -33,12 +33,12 @@ type ChatGPTRequest struct {
 }
 
 func NewChatGPTRequest() ChatGPTRequest {
-	disable_history := os.Getenv("DISABLE_HISTORY") != ""
+	enable_history := os.Getenv("ENABLE_HISTORY") == ""
 	return ChatGPTRequest{
 		Action:                     "next",
 		ParentMessageID:            uuid.NewString(),
 		Model:                      "text-davinci-002-render-sha",
-		HistoryAndTrainingDisabled: disable_history,
+		HistoryAndTrainingDisabled: !enable_history,
 	}
 }
 
