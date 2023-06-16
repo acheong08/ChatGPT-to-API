@@ -225,7 +225,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 }
 
 func GETengines() (interface{}, int, error) {
-	url := "https://api.openai.com/v1/engines"
+	url := "https://api.openai.com/v1/models"
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("Authorization", "Bearer "+os.Getenv("OFFICIAL_API_KEY"))
 	resp, err := client.Do(req)
