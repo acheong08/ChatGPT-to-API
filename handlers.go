@@ -28,6 +28,10 @@ func openaiHandler(c *gin.Context) {
 	if authorizations.Official_API_Key != "" {
 		os.Setenv("OFFICIAL_API_KEY", authorizations.Official_API_Key)
 	}
+	if authorizations.OpenAI_Email == "" && authorizations.OpenAI_Password == "" && authorizations.Official_API_Key == "" {
+		c.JSON(400, gin.H{"error": "JSON invalid"})
+		return
+	}
 	c.String(200, "OpenAI credentials updated")
 }
 
