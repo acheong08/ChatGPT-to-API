@@ -1,6 +1,10 @@
 package chatgpt
 
-import "github.com/google/uuid"
+import (
+	"os"
+
+	"github.com/google/uuid"
+)
 
 type chatgpt_message struct {
 	ID      uuid.UUID       `json:"id"`
@@ -29,11 +33,12 @@ type ChatGPTRequest struct {
 }
 
 func NewChatGPTRequest() ChatGPTRequest {
+	disable_history := os.Getenv("DISABLE_HISTORY") == ""
 	return ChatGPTRequest{
 		Action:                     "next",
 		ParentMessageID:            uuid.NewString(),
 		Model:                      "text-davinci-002-render-sha",
-		HistoryAndTrainingDisabled: true,
+		HistoryAndTrainingDisabled: disable_history,
 	}
 }
 
