@@ -91,7 +91,7 @@ func nightmare(c *gin.Context) {
 	if authHeader != "" {
 		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
 		// Check if customAccessToken starts with sk-
-		if strings.HasPrefix(customAccessToken, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1UaEVOVUpHTkVNMVFURTRNMEZCTWpkQ05UZzVNRFUxUlRVd1FVSkRNRU13UmtGRVFrRXpSZyJ9") {
+		if strings.HasPrefix(customAccessToken, "eyJhbGciOiJSUzI1NiI") {
 			token = customAccessToken
 		}
 	}
