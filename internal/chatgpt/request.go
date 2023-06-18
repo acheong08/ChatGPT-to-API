@@ -177,8 +177,6 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
-				println("Failed to parse JSON")
-				println(line)
 				continue
 			}
 			if original_response.Error != nil {
