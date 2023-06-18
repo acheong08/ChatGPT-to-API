@@ -124,7 +124,7 @@ func nightmare(c *gin.Context) {
 		return
 	}
 	var full_response string
-	for i := 2; i > 0; i-- {
+	for i := 3; i > 0; i-- {
 		var continue_info *chatgpt.ContinueInfo
 		var response_part string
 		response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
