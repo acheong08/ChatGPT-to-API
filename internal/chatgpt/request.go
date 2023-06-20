@@ -158,6 +158,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 	var finish_reason string
 	var previous_text typings.StringStruct
 	var original_response chatgpt_types.ChatGPTResponse
+	var isRole = true
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -186,10 +187,11 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
 				continue
 			}
-			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" {
+			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || original_response.Message.EndTurn != nil {
 				continue
 			}
-			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text)
+			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text, isRole)
+			isRole = false
 			if stream {
 				_, err = c.Writer.WriteString(response_string)
 				if err != nil {
