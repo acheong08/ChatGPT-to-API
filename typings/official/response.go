@@ -22,8 +22,8 @@ type Choices struct {
 }
 
 type Delta struct {
-	Content string `json:"content"`
-	Role    string `json:"role"`
+	Content string `json:"content,omitempty"`
+	Role    string `json:"role,omitempty"`
 }
 
 func NewChatCompletionChunk(text string) ChatCompletionChunk {
@@ -37,7 +37,6 @@ func NewChatCompletionChunk(text string) ChatCompletionChunk {
 				Index: 0,
 				Delta: Delta{
 					Content: text,
-					Role:    "assistant",
 				},
 				FinishReason: nil,
 			},
