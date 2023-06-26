@@ -1,6 +1,7 @@
 package chatgpt
 
 import (
+	chatgpt_req "freechatgpt/internal/chatgpt"
 	chatgpt_types "freechatgpt/typings/chatgpt"
 	official_types "freechatgpt/typings/official"
 	"strings"
@@ -12,6 +13,7 @@ func ConvertAPIRequest(api_request official_types.APIRequest) chatgpt_types.Chat
 		chatgpt_request.Model = "text-davinci-002-render-sha"
 	}
 	if strings.HasPrefix(api_request.Model, "gpt-4") {
+		chatgpt_req.Get_arkose_token()
 		chatgpt_request.Model = api_request.Model
 	}
 	if api_request.Model == "gpt-4" {
