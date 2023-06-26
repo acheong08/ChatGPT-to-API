@@ -98,6 +98,7 @@ func nightmare(c *gin.Context) {
 			"param":   nil,
 			"code":    err.Error(),
 		}})
+		return
 	}
 
 	authHeader := c.GetHeader("Authorization")
