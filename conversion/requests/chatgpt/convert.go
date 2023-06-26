@@ -1,10 +1,12 @@
 package chatgpt
 
 import (
-	arkose_req "freechatgpt/internal/chatgpt"
+	"fmt"
 	chatgpt_types "freechatgpt/typings/chatgpt"
 	official_types "freechatgpt/typings/official"
 	"strings"
+
+	arkose "github.com/acheong08/funcaptcha"
 )
 
 func ConvertAPIRequest(api_request official_types.APIRequest) chatgpt_types.ChatGPTRequest {
@@ -13,7 +15,12 @@ func ConvertAPIRequest(api_request official_types.APIRequest) chatgpt_types.Chat
 		chatgpt_request.Model = "text-davinci-002-render-sha"
 	}
 	if strings.HasPrefix(api_request.Model, "gpt-4") {
-		arkose_req.Get_arkose_token()
+		token, err := arkose.GetOpenAIToken()
+		if err == nil {
+			chatgpt_request.ArkoseToken = token
+		} else {
+			fmt.Println("Error getting Arkose token: ", err)
+		}
 		chatgpt_request.Model = api_request.Model
 	}
 	if api_request.Model == "gpt-4" {
