@@ -42,6 +42,9 @@ func init() {
 
 	HOST = os.Getenv("SERVER_HOST")
 	PORT = os.Getenv("SERVER_PORT")
+	if PORT == "" {
+		PORT = os.Getenv("PORT")
+	}
 	if HOST == "" {
 		HOST = "127.0.0.1"
 	}
