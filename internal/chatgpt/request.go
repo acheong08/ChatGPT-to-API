@@ -25,7 +25,7 @@ var (
 	jar     = tls_client.NewCookieJar()
 	options = []tls_client.HttpClientOption{
 		tls_client.WithTimeoutSeconds(360),
-		tls_client.WithClientProfile(tls_client.Safari_IOS_15_5),
+		tls_client.WithClientProfile(tls_client.Safari_Ipad_15_6),
 		tls_client.WithNotFollowRedirects(),
 		tls_client.WithCookieJar(jar), // create cookieJar instance and pass it as argument
 		// Disable SSL verification
@@ -35,7 +35,7 @@ var (
 	API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
 )
 
-func Send_request(message chatgpt_types.ChatGPTRequest, access_token string, proxy string) (*http.Response, error) {
+func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string, proxy string) (*http.Response, error) {
 	if proxy != "" {
 		client.SetProxy(proxy)
 	}
@@ -123,6 +123,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 	var finish_reason string
 	var previous_text typings.StringStruct
 	var original_response chatgpt_types.ChatGPTResponse
+	var isRole = true
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -142,8 +143,6 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
-				println("Failed to parse JSON")
-				println(line)
 				continue
 			}
 			if original_response.Error != nil {
@@ -153,10 +152,11 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
 				continue
 			}
-			if original_response.Message.Metadata.MessageType != "next" {
+			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || original_response.Message.EndTurn != nil {
 				continue
 			}
-			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text)
+			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text, isRole)
+			isRole = false
 			if stream {
 				_, err = c.Writer.WriteString(response_string)
 				if err != nil {
@@ -187,4 +187,18 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		ConversationID: original_response.ConversationID,
 		ParentID:       original_response.Message.ID,
 	}
+}
+
+func GETengines() (interface{}, int, error) {
+	url := "https://api.openai.com/v1/models"
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("Authorization", "Bearer "+os.Getenv("OFFICIAL_API_KEY"))
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+	var result interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	return result, resp.StatusCode, nil
 }

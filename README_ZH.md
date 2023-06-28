@@ -49,6 +49,7 @@ go build
   - `PUID` - Plus账户可在`chat.openai.com`的cookies里找到，用于绕过cf的频率限制
   - `SERVER_HOST` - 默认127.0.0.1
   - `SERVER_PORT` - 默认8080
+  - `ENABLE_HISTORY` - 默认true，允许网页端历史记录
 ### 可选文件配置
   - `proxies.txt` - 存放代理地址的文件
 

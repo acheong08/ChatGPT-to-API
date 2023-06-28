@@ -39,33 +39,29 @@ func checkProxy() {
 	}
 }
 
-var authorizations struct {
-	OpenAI_Email    string `json:"openai_email"`
-	OpenAI_Password string `json:"openai_password"`
-}
-
 func init() {
-	authorizations.OpenAI_Email = os.Getenv("OPENAI_EMAIL")
-	authorizations.OpenAI_Password = os.Getenv("OPENAI_PASSWORD")
-	if authorizations.OpenAI_Email != "" && authorizations.OpenAI_Password != "" {
-		go func() {
-			for {
-				authenticator := auth.NewAuthenticator(authorizations.OpenAI_Email, authorizations.OpenAI_Password, os.Getenv("http_proxy"))
-				err := authenticator.Begin()
-				if err != nil {
-					log.Println(err)
-					break
-				}
-				puid, err := authenticator.GetPUID()
-				if err != nil {
-					break
-				}
-				os.Setenv("PUID", puid)
-				println(puid)
+	go func() {
+		for {
+			if os.Getenv("OPENAI_EMAIL") == "" || os.Getenv("OPENAI_PASSWORD") == "" {
 				time.Sleep(24 * time.Hour * 7)
+				continue
 			}
-		}()
-	}
+			authenticator := auth.NewAuthenticator(os.Getenv("OPENAI_EMAIL"), os.Getenv("OPENAI_PASSWORD"), os.Getenv("http_proxy"))
+			err := authenticator.Begin()
+			if err != nil {
+				log.Println(err)
+				break
+			}
+			puid, err := authenticator.GetPUID()
+			if err != nil {
+				break
+			}
+			os.Setenv("PUID", puid)
+			println(puid)
+			time.Sleep(24 * time.Hour * 7)
+		}
+	}()
+
 	HOST = os.Getenv("SERVER_HOST")
 	PORT = os.Getenv("SERVER_PORT")
 	if HOST == "" {
@@ -100,5 +96,7 @@ func main() {
 	/// Public routes
 	router.OPTIONS("/v1/chat/completions", optionsHandler)
 	router.POST("/v1/chat/completions", Authorization, nightmare)
+	router.GET("/v1/engines", Authorization, engines_handler)
+	router.GET("/v1/models", Authorization, engines_handler)
 	endless.ListenAndServe(HOST+":"+PORT, router)
 }
