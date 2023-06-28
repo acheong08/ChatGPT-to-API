@@ -11,6 +11,7 @@ import (
 	"github.com/acheong08/OpenAIAuth/auth"
 	"github.com/acheong08/endless"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 var HOST string
@@ -18,6 +19,7 @@ var PORT string
 var ACCESS_TOKENS tokens.AccessToken
 
 func init() {
+	_ = godotenv.Load(".env")
 	go func() {
 		for {
 			if os.Getenv("OPENAI_EMAIL") == "" || os.Getenv("OPENAI_PASSWORD") == "" {
