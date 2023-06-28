@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 
+	arkose "github.com/acheong08/funcaptcha"
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
 	"github.com/gin-gonic/gin"
@@ -60,6 +61,8 @@ func init() {
 			proxies = append(proxies, proxy)
 		}
 	}
+	arkose.SetTLSClient(&client)
+
 }
 
 func random_int(min int, max int) int {
