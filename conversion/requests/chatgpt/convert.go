@@ -23,10 +23,6 @@ func ConvertAPIRequest(api_request official_types.APIRequest) chatgpt_types.Chat
 		}
 		chatgpt_request.Model = api_request.Model
 	}
-	if api_request.Model == "gpt-4" {
-		// Mobile was fixed in rate limiting.
-		chatgpt_request.Model = "gpt-4"
-	}
 	if api_request.PluginIDs != nil {
 		chatgpt_request.PluginIDs = api_request.PluginIDs
 		chatgpt_request.Model = "gpt-4-plugins"
