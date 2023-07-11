@@ -69,7 +69,7 @@ GO-ChatGPT-API项目 https://github.com/linweiyuan/go-chatgpt-api
 
 
 ```
-curl http://127.0.0.1:8080/chatgpt/conversation \
+curl http://127.0.0.1:8080/chatgpt/backend-api/conversation \
   -H "Content-Type: application/json" \
   -d '{
      "model": "gpt-3.5-turbo",
