@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"authenticator/auth"
+	auth "github.com/acheong08/OpenAIAuth/auth"
 )
 
 type Account struct {
@@ -126,7 +126,9 @@ func main() {
 			println("Status code: " + fmt.Sprint(err.StatusCode))
 			println("Details: " + err.Details)
 			println("Embedded error: " + err.Error.Error())
-			return
+			// Sleep for 10 seconds
+			time.Sleep(10 * time.Second)
+			continue
 		}
 		access_token := authenticator.GetAccessToken()
 		// Append access token to access_tokens.txt
