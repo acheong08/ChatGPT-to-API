@@ -8,3 +8,4 @@ access_tokens.json
 freechatgpt
 chatgpttoapi
 tools/authenticator/.proxies.txt.swp
+.env

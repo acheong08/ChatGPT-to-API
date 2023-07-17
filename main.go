@@ -11,6 +11,7 @@ import (
 	"github.com/acheong08/OpenAIAuth/auth"
 	"github.com/acheong08/endless"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 var HOST string
@@ -40,6 +41,7 @@ func checkProxy() {
 }
 
 func init() {
+	_ = godotenv.Load(".env")
 	go func() {
 		for {
 			if os.Getenv("OPENAI_EMAIL") == "" || os.Getenv("OPENAI_PASSWORD") == "" {
@@ -64,6 +66,9 @@ func init() {
 
 	HOST = os.Getenv("SERVER_HOST")
 	PORT = os.Getenv("SERVER_PORT")
+	if PORT == "" {
+		PORT = os.Getenv("PORT")
+	}
 	if HOST == "" {
 		HOST = "127.0.0.1"
 	}
