@@ -1,5 +1,7 @@
 github.com/acheong08/OpenAIAuth v0.0.0-20230609193408-55a0f33f1057 h1:AmqKpClFTUHREYekSfSy3Yn7MR/oc6WTfKtEyzB/J7o=
 github.com/acheong08/OpenAIAuth v0.0.0-20230609193408-55a0f33f1057/go.mod h1:ES3Dh9hnbR2mDPlNTagj5e3b4nXECd4tbAjVgxggXEE=
+github.com/acheong08/OpenAIAuth v0.0.0-20230716134840-dbf5ba4f9507 h1:1kZEmE1DeQEeIMHhQUqn+NqOdApF9BIv835ox09E2k8=
+github.com/acheong08/OpenAIAuth v0.0.0-20230716134840-dbf5ba4f9507/go.mod h1:bkiXtklBFVpWHyWTys6Zhqb521i/gtT8cIUKWVx2m/M=
 github.com/acheong08/endless v0.0.0-20230615162514-90545c7793fd h1:oIpfrRhD7Jus41dotbK+SQjWSFRnf1cLZUYCZpF/o/4=
 github.com/acheong08/endless v0.0.0-20230615162514-90545c7793fd/go.mod h1:0yO7neMeJLvKk/B/fq5votDY8rByrOPDubpvU+6saKo=
 github.com/acheong08/funcaptcha v0.2.1-0.20230628085018-57a8c9b81bc8 h1:COt2vPM8gz+PiUjeWH1enYPfMM3FiM/HFELqU6nO2PQ=
@@ -8,6 +10,8 @@ github.com/acheong08/funcaptcha v0.2.1-0.20230628154248-28b05efd8e52 h1:cZ9RUUz+
 github.com/acheong08/funcaptcha v0.2.1-0.20230628154248-28b05efd8e52/go.mod h1:VupbjtVAODvgyAB3Zo86fOA53G+UAmaV/Rk9jUCGuTU=
 github.com/acheong08/funcaptcha v0.2.1-0.20230629044031-084e7dfaffef h1:B5fq4j+Qiu/6vay/70BG9mBuBgF28CnA4MTx1+J2V+o=
 github.com/acheong08/funcaptcha v0.2.1-0.20230629044031-084e7dfaffef/go.mod h1:VupbjtVAODvgyAB3Zo86fOA53G+UAmaV/Rk9jUCGuTU=
+github.com/acheong08/funcaptcha v1.2.2-0.20230702093045-02d1fbf1b0e8 h1:6VDA9GYZeDBc5xB6mmG9M/U2scvKCxd8izGxk6qHWmY=
+github.com/acheong08/funcaptcha v1.2.2-0.20230702093045-02d1fbf1b0e8/go.mod h1:azmXv2Mfbw5eBOnMw5e1yTMNVyku17klWhGtkHwm7PY=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/bogdanfinn/fhttp v0.5.23 h1:4Xb5OjYArB8GpnUw4A4r5jmt8UW0/Cvey3R9nS2dC9U=
