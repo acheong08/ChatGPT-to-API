@@ -7,7 +7,7 @@ import (
 	official_types "freechatgpt/typings/official"
 	"os"
 	"strings"
-
+	"time"
 	"github.com/gin-gonic/gin"
 )
 
@@ -88,7 +88,35 @@ func optionsHandler(c *gin.Context) {
 		"message": "pong",
 	})
 }
+
+func LockFileMiddleware(c *gin.Context) {
+    // Check if SINGLE_THREAD is set to "yes"
+    if os.Getenv("SINGLE_THREAD") == "yes" {
+        // If yes, check for the existence of the lock file
+        for {
+            _, err := os.Stat(".lock")
+            if os.IsNotExist(err) {
+                break
+            }
+            // If the lock file exists, wait for 0.5 seconds before checking again
+            time.Sleep(500 * time.Millisecond)
+        }
+    }
+    c.Next()
+}
+
+
 func nightmare(c *gin.Context) {
+	// Check if SINGLE_THREAD is set to "yes"
+    	if os.Getenv("SINGLE_THREAD") == "yes" {
+        	// If yes, create the lock file
+        	_, err := os.Create(".lock")
+        	if err != nil {
+            	// handle error
+        	}
+        	// Ensure the lock file is removed after processing the request
+        	defer os.Remove(".lock")
+    	}
 	var original_request official_types.APIRequest
 	err := c.BindJSON(&original_request)
 	if err != nil {
