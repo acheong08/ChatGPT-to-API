@@ -20,7 +20,7 @@
 
 所有登录后的Access tokens会存放在`access_tokens.json`
 
-每20天自动更新Access tokens
+每14天自动更新Access tokens
 
 注意！ 请使用未封锁的ip登录账号，请先打开浏览器登录`https://chat.openai.com/`以检查ip是否可用
 

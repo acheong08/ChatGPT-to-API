@@ -21,9 +21,10 @@ func ConvertAPIRequest(api_request official_types.APIRequest) chatgpt_types.Chat
 		} else {
 			fmt.Println("Error getting Arkose token: ", err)
 		}
-		chatgpt_request.Model = "gpt-4"
-		if api_request.Model == "gpt-4-browsing" || api_request.Model == "gpt-4-mobile" || api_request.Model == "gpt-4-code-interpreter" {
-			chatgpt_request.Model = api_request.Model
+		chatgpt_request.Model = api_request.Model
+		// Cover some models like gpt-4-32k
+		if len(api_request.Model) >= 7 && api_request.Model[6] >= 48 && api_request.Model[6] <= 57 {
+			chatgpt_request.Model = "gpt-4"
 		}
 	}
 	if api_request.PluginIDs != nil {

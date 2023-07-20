@@ -20,7 +20,7 @@ var ACCESS_TOKENS tokens.AccessToken
 var proxies []string
 
 func checkProxy() {
-	// Check for proxies.txt
+	// first check for proxies.txt
 	proxies = []string{}
 	if _, err := os.Stat("proxies.txt"); err == nil {
 		// Each line is a proxy, put in proxies array
@@ -36,6 +36,13 @@ func checkProxy() {
 			} else {
 				continue
 			}
+		}
+	}
+	// if no proxies, then check env http_proxy
+	if len(proxies) == 0 {
+		proxy := os.Getenv("http_proxy")
+		if proxy != "" {
+			proxies = append(proxies, proxy)
 		}
 	}
 }

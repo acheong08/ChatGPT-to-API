@@ -1,11 +1,12 @@
 # ChatGPT-to-API
-Create a fake API using ChatGPT's website [中文说明](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/README_ZH.md)
+Create a fake API using ChatGPT's website
 
 > ## IMPORTANT
 > You will not get free support for this repository. This was made for my own personal use and documentation will continue to be limited as I don't really need documentation. You will find more detailed documentation in the Chinese docs by a contributor.
 
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
+[中文文档（Chinese Docs）](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/README_ZH.md)
 ## Setup
     
 ### Authentication
@@ -22,7 +23,7 @@ email:password
 
 All authenticated access tokens will store in `access_tokens.json`
 
-Auto renew access tokens after 20 days
+Auto renew access tokens after 14 days
 
 Caution! please use unblocked ip for authentication, first login to `https://chat.openai.com/` to check ip availability if you can.
 
@@ -52,6 +53,7 @@ go build
   - `SERVER_HOST` - Set to 127.0.0.1 by default
   - `SERVER_PORT` - Set to 8080 by default
   - `OPENAI_EMAIL` and `OPENAI_PASSWORD` - It will automatically refresh your PUID if set (requires Plus account)
+  - `ENABLE_HISTORY` - Set to true by default
 
 ### Files (Optional)
   - `proxies.txt` - A list of proxies separated by new line
