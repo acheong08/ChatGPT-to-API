@@ -76,7 +76,7 @@ func tokensHandler(c *gin.Context) {
 		c.String(400, "tokens not provided")
 		return
 	}
-	ACCESS_TOKENS = tokens.NewAccessToken(request_tokens)
+	ACCESS_TOKENS = tokens.NewAccessToken(request_tokens, true)
 	c.String(200, "tokens updated")
 }
 func optionsHandler(c *gin.Context) {
@@ -110,10 +110,19 @@ func nightmare(c *gin.Context) {
 			token = customAccessToken
 		}
 	}
+	var proxy_url string
+	if len(proxies) == 0 {
+		proxy_url = ""
+	} else {
+		proxy_url = proxies[0]
+		// Push used proxy to the back of the list
+		proxies = append(proxies[1:], proxies[0])
+	}
+
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request)
 
-	response, err := chatgpt.POSTconversation(translated_request, token)
+	response, err := chatgpt.POSTconversation(translated_request, token, proxy_url)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "error sending request",
@@ -138,7 +147,7 @@ func nightmare(c *gin.Context) {
 		translated_request.Action = "continue"
 		translated_request.ConversationID = continue_info.ConversationID
 		translated_request.ParentMessageID = continue_info.ParentID
-		response, err = chatgpt.POSTconversation(translated_request, token)
+		response, err = chatgpt.POSTconversation(translated_request, token, proxy_url)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": "error sending request",

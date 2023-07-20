@@ -6,63 +6,66 @@ Create a fake API using ChatGPT's website
 
 **API endpoint: http://127.0.0.1:8080/v1/chat/completions.**
 
-[中文文档（Chinese Docs）](README_CN.md)
-
-## Help needed
-- Documentation.
-
+[中文文档（Chinese Docs）](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/README_ZH.md)
 ## Setup
-
-<details>
-  <summary>
     
 ### Authentication
-  </summary>
-  
-Access token retrieval has been automated:
-https://github.com/acheong08/ChatGPT-to-API/tree/master/tools/authenticator
 
-Converting from a newline delimited list of access tokens to `access_tokens.json`
-```bash
-#!/bin/bash     
+Access token retrieval has been automated by [OpenAIAuth](https://github.com/acheong08/OpenAIAuth/) with account email & password.
 
-START="["
-END="]"
+`accounts.txt` - A list of accounts separated by new line 
 
-TOKENS=""
-
-while read -r line; do
-  if [ -z "$TOKENS" ]; then
-    TOKENS="\"$line\""
-  else
-    TOKENS+=",\"$line\""
-  fi
-done < access_tokens.txt
-
-echo "$START$TOKENS$END" > access_tokens.json
+Format:
+```
+email:password
+...
 ```
 
-</details>
+All authenticated access tokens will store in `access_tokens.json`
+
+Auto renew access tokens after 14 days
+
+Caution! please use unblocked ip for authentication, first login to `https://chat.openai.com/` to check ip availability if you can.
+
+### API Authentication (Optional)
+
+Custom API keys for this fake API, just like OpenAI api
+
+`api_keys.txt` - A list of API keys separated by new line
+
+Format:
+```
+sk-123456
+88888888
+...
+```
 
 ## Getting set up
-  
-`git clone https://github.com/acheong08/ChatGPT-to-API`
-`cd ChatGPT-to-API`
-`go build`
-`./freechatgpt`
+```  
+git clone https://github.com/xqdoo00o/ChatGPT-to-API
+cd ChatGPT-to-API
+go build
+./freechatgpt
+```
 
 ### Environment variables
   - `PUID` - A cookie found on chat.openai.com for Plus users. This gets around Cloudflare rate limits
-  - `http_proxy` - SOCKS5 or HTTP proxy. `socks5://HOST:PORT`
   - `SERVER_HOST` - Set to 127.0.0.1 by default
   - `SERVER_PORT` - Set to 8080 by default
   - `OPENAI_EMAIL` and `OPENAI_PASSWORD` - It will automatically refresh your PUID if set (requires Plus account)
+  - `ENABLE_HISTORY` - Set to true by default
 
 ### Files (Optional)
-  - `access_tokens.json` - A JSON array of access tokens for cycling (Alternatively, send a PATCH request to the [correct endpoint](https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md))
-  - `proxies.txt` - A list of proxies separated by new line (Format: `USERNAME:PASSWORD:HOST:PORT`)
-  
+  - `proxies.txt` - A list of proxies separated by new line
 
+    ```
+    http://127.0.0.1:8888
+    ...
+    ```
+  - `access_tokens.json` - A JSON array of access tokens for cycling (Alternatively, send a PATCH request to the [correct endpoint](https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md))
+    ```
+    ["access_token1", "access_token2"...]
+    ```
 
 ## Admin API docs
 https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md

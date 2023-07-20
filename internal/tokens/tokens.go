@@ -11,7 +11,7 @@ type AccessToken struct {
 	lock   sync.Mutex
 }
 
-func NewAccessToken(tokens []string) AccessToken {
+func NewAccessToken(tokens []string, save bool) AccessToken {
 	// Save the tokens to a file
 	if _, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
 		// Create the file
@@ -21,19 +21,29 @@ func NewAccessToken(tokens []string) AccessToken {
 		}
 		defer file.Close()
 	}
+	if save {
+		saved := Save(tokens)
+		if saved == false {
+			return AccessToken{}
+		}
+	}
+	return AccessToken{
+		tokens: tokens,
+	}
+}
+
+func Save(tokens []string) bool {
 	file, err := os.OpenFile("access_tokens.json", os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
-		return AccessToken{}
+		return false
 	}
 	defer file.Close()
 	encoder := json.NewEncoder(file)
 	err = encoder.Encode(tokens)
 	if err != nil {
-		return AccessToken{}
+		return false
 	}
-	return AccessToken{
-		tokens: tokens,
-	}
+	return true
 }
 
 func (a *AccessToken) GetToken() string {

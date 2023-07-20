@@ -22,12 +22,15 @@ func ConvertAPIRequest(api_request official_types.APIRequest) chatgpt_types.Chat
 			fmt.Println("Error getting Arkose token: ", err)
 		}
 		chatgpt_request.Model = api_request.Model
+		// Cover some models like gpt-4-32k
+		if len(api_request.Model) >= 7 && api_request.Model[6] >= 48 && api_request.Model[6] <= 57 {
+			chatgpt_request.Model = "gpt-4"
+		}
 	}
 	if api_request.PluginIDs != nil {
 		chatgpt_request.PluginIDs = api_request.PluginIDs
 		chatgpt_request.Model = "gpt-4-plugins"
 	}
-
 	for _, api_message := range api_request.Messages {
 		if api_message.Role == "system" {
 			api_message.Role = "critic"
