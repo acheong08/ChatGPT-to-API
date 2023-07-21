@@ -42,7 +42,7 @@ sk-123456
 
 ## Getting set up
 ```  
-git clone https://github.com/xqdoo00o/ChatGPT-to-API
+git clone https://github.com/acheong08/ChatGPT-to-API
 cd ChatGPT-to-API
 go build
 ./freechatgpt
