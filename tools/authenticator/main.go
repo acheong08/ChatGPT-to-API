@@ -127,8 +127,7 @@ func main() {
 			println("Details: " + err.Details)
 			println("Embedded error: " + err.Error.Error())
 			// Sleep for 10 seconds
-			time.Sleep(10 * time.Second)
-			continue
+			panic(err)
 		}
 		access_token := authenticator.GetAccessToken()
 		// Append access token to access_tokens.txt
