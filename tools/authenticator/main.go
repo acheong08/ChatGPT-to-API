@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	auth "github.com/acheong08/OpenAIAuth/auth"
+	auth "authenticator/auth"
 )
 
 type Account struct {
