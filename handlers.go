@@ -70,7 +70,7 @@ func puidHandler(c *gin.Context) {
 
 func tokensHandler(c *gin.Context) {
 	// Get the request_tokens from the request (json) and update the request_tokens
-	var request_tokens []string
+	var request_tokens []tokens.Secret
 	err := c.BindJSON(&request_tokens)
 	if err != nil {
 		c.String(400, "tokens not provided")
@@ -102,7 +102,7 @@ func nightmare(c *gin.Context) {
 	}
 
 	authHeader := c.GetHeader("Authorization")
-	token := ACCESS_TOKENS.GetToken()
+	token, puid := ACCESS_TOKENS.GetSecret()
 	if authHeader != "" {
 		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
 		// Check if customAccessToken starts with sk-
@@ -120,9 +120,9 @@ func nightmare(c *gin.Context) {
 	}
 
 	// Convert the chat request to a ChatGPT request
-	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request)
+	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request, puid, proxy_url)
 
-	response, err := chatgpt.POSTconversation(translated_request, token, proxy_url)
+	response, err := chatgpt.POSTconversation(translated_request, token, puid, proxy_url)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "error sending request",
@@ -147,7 +147,7 @@ func nightmare(c *gin.Context) {
 		translated_request.Action = "continue"
 		translated_request.ConversationID = continue_info.ConversationID
 		translated_request.ParentMessageID = continue_info.ParentID
-		response, err = chatgpt.POSTconversation(translated_request, token, proxy_url)
+		response, err = chatgpt.POSTconversation(translated_request, token, puid, proxy_url)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": "error sending request",

@@ -11,7 +11,7 @@ Create a fake API using ChatGPT's website
     
 ### Authentication
 
-Access token retrieval has been automated by [OpenAIAuth](https://github.com/acheong08/OpenAIAuth/) with account email & password.
+Access token and PUID(only for PLUS account) retrieval has been automated by [OpenAIAuth](https://github.com/acheong08/OpenAIAuth/) with account email & password.
 
 `accounts.txt` - A list of accounts separated by new line 
 
@@ -21,11 +21,19 @@ email:password
 ...
 ```
 
-All authenticated access tokens will store in `access_tokens.json`
+All authenticated access tokens and PUID will store in `access_tokens.json`
 
-Auto renew access tokens after 14 days
+Auto renew access tokens and PUID after 7 days
 
 Caution! please use unblocked ip for authentication, first login to `https://chat.openai.com/` to check ip availability if you can.
+
+### GPT-4 Model (Optional)
+
+If you configured a PLUS account and use the GPT-4 model, a HAR file (`chat.openai.com.har`) is required to complete CAPTCHA verification
+
+1. Use a chromium-based browser (Chrome, Edge) or Safari to login to `https://chat.openai.com/`, then open the browser developer tools (F12), and switch to the Network tab.
+
+2. Create a new chat and select the GPT-4 model, ask a question at will, click the Export HAR button under the Network tab, export the file `chat.openai.com.har`
 
 ### API Authentication (Optional)
 
@@ -52,7 +60,6 @@ go build
   - `PUID` - A cookie found on chat.openai.com for Plus users. This gets around Cloudflare rate limits
   - `SERVER_HOST` - Set to 127.0.0.1 by default
   - `SERVER_PORT` - Set to 8080 by default
-  - `OPENAI_EMAIL` and `OPENAI_PASSWORD` - It will automatically refresh your PUID if set (requires Plus account)
   - `ENABLE_HISTORY` - Set to true by default
 
 ### Files (Optional)
@@ -64,7 +71,7 @@ go build
     ```
   - `access_tokens.json` - A JSON array of access tokens for cycling (Alternatively, send a PATCH request to the [correct endpoint](https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md))
     ```
-    ["access_token1", "access_token2"...]
+    [{token:"access_token1", puid:"puid1"}, {token:"access_token2", puid:"puid2"}...]
     ```
 
 ## Admin API docs
