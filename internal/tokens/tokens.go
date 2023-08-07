@@ -6,12 +6,16 @@ import (
 	"sync"
 )
 
+type Secret struct {
+	Token string `json:"token"`
+	PUID  string `json:"puid"`
+}
 type AccessToken struct {
-	tokens []string
+	tokens []Secret
 	lock   sync.Mutex
 }
 
-func NewAccessToken(tokens []string, save bool) AccessToken {
+func NewAccessToken(tokens []Secret, save bool) AccessToken {
 	// Save the tokens to a file
 	if _, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
 		// Create the file
@@ -32,7 +36,7 @@ func NewAccessToken(tokens []string, save bool) AccessToken {
 	}
 }
 
-func Save(tokens []string) bool {
+func Save(tokens []Secret) bool {
 	file, err := os.OpenFile("access_tokens.json", os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return false
@@ -46,15 +50,15 @@ func Save(tokens []string) bool {
 	return true
 }
 
-func (a *AccessToken) GetToken() string {
+func (a *AccessToken) GetSecret() (string, string) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
 	if len(a.tokens) == 0 {
-		return ""
+		return "", ""
 	}
 
-	token := a.tokens[0]
-	a.tokens = append(a.tokens[1:], token)
-	return token
+	secret := a.tokens[0]
+	a.tokens = append(a.tokens[1:], secret)
+	return secret.Token, secret.PUID
 }

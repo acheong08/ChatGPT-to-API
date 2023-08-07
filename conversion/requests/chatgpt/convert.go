@@ -9,13 +9,13 @@ import (
 	arkose "github.com/acheong08/funcaptcha"
 )
 
-func ConvertAPIRequest(api_request official_types.APIRequest) chatgpt_types.ChatGPTRequest {
+func ConvertAPIRequest(api_request official_types.APIRequest, puid string, proxy string) chatgpt_types.ChatGPTRequest {
 	chatgpt_request := chatgpt_types.NewChatGPTRequest()
 	if strings.HasPrefix(api_request.Model, "gpt-3.5") {
 		chatgpt_request.Model = "text-davinci-002-render-sha"
 	}
 	if strings.HasPrefix(api_request.Model, "gpt-4") {
-		token, _, err := arkose.GetOpenAIToken()
+		token, _, err := arkose.GetOpenAIToken(puid, proxy)
 		if err == nil {
 			chatgpt_request.ArkoseToken = token
 		} else {

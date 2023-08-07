@@ -43,7 +43,7 @@ func readAccounts() {
 		}
 	}
 }
-func scheduleToken() {
+func scheduleTokenPUID() {
 	// Check if access_tokens.json exists
 	if stat, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
 		// Create the file
@@ -56,8 +56,8 @@ func scheduleToken() {
 	} else {
 		nowTime := time.Now()
 		usedTime := nowTime.Sub(stat.ModTime())
-		// update access token 14 days after last modify token file
-		toExpire := 1.2096e15 - usedTime
+		// update access token 7 days after last modify token file
+		toExpire := 6.048e14 - usedTime
 		if toExpire > 0 {
 			file, err := os.Open("access_tokens.json")
 			if err != nil {
@@ -65,7 +65,7 @@ func scheduleToken() {
 			}
 			defer file.Close()
 			decoder := json.NewDecoder(file)
-			var token_list []string
+			var token_list []tokens.Secret
 			err = decoder.Decode(&token_list)
 			if err != nil {
 				updateToken()
@@ -84,7 +84,7 @@ func scheduleToken() {
 }
 
 func updateToken() {
-	token_list := []string{}
+	token_list := []tokens.Secret{}
 	// Loop through each account
 	for _, account := range accounts {
 		if os.Getenv("CF_PROXY") != "" {
@@ -113,7 +113,8 @@ func updateToken() {
 			return
 		}
 		access_token := authenticator.GetAccessToken()
-		token_list = append(token_list, access_token)
+		puid, _ := authenticator.GetPUID()
+		token_list = append(token_list, tokens.Secret{access_token, puid})
 		println("Success!")
 		// Write authenticated account to authenticated_accounts.txt
 		f, go_err := os.OpenFile("authenticated_accounts.txt", os.O_APPEND|os.O_WRONLY, 0600)
@@ -147,5 +148,5 @@ func updateToken() {
 	}
 	// Append access token to access_tokens.json
 	ACCESS_TOKENS = tokens.NewAccessToken(token_list, true)
-	time.AfterFunc(1.2096e15, updateToken)
+	time.AfterFunc(6.048e14, updateToken)
 }

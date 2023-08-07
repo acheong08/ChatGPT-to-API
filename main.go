@@ -3,12 +3,9 @@ package main
 import (
 	"bufio"
 	"freechatgpt/internal/tokens"
-	"log"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/acheong08/OpenAIAuth/auth"
 	"github.com/acheong08/endless"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -49,27 +46,6 @@ func checkProxy() {
 
 func init() {
 	_ = godotenv.Load(".env")
-	go func() {
-		for {
-			if os.Getenv("OPENAI_EMAIL") == "" || os.Getenv("OPENAI_PASSWORD") == "" {
-				time.Sleep(24 * time.Hour * 7)
-				continue
-			}
-			authenticator := auth.NewAuthenticator(os.Getenv("OPENAI_EMAIL"), os.Getenv("OPENAI_PASSWORD"), os.Getenv("http_proxy"))
-			err := authenticator.Begin()
-			if err != nil {
-				log.Println(err)
-				break
-			}
-			puid, err := authenticator.GetPUID()
-			if err != nil {
-				break
-			}
-			os.Setenv("PUID", puid)
-			println(puid)
-			time.Sleep(24 * time.Hour * 7)
-		}
-	}()
 
 	HOST = os.Getenv("SERVER_HOST")
 	PORT = os.Getenv("SERVER_PORT")
@@ -84,7 +60,7 @@ func init() {
 	}
 	checkProxy()
 	readAccounts()
-	scheduleToken()
+	scheduleTokenPUID()
 }
 func main() {
 	router := gin.Default()

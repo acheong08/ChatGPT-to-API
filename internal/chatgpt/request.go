@@ -40,7 +40,7 @@ func init() {
 	arkose.SetTLSClient(&client)
 }
 
-func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string, proxy string) (*http.Response, error) {
+func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string, puid string, proxy string) (*http.Response, error) {
 	if proxy != "" {
 		client.SetProxy(proxy)
 	}
@@ -61,8 +61,8 @@ func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string,
 		return &http.Response{}, err
 	}
 	// Clear cookies
-	if os.Getenv("PUID") != "" {
-		request.Header.Set("Cookie", "_puid="+os.Getenv("PUID")+";")
+	if puid != "" {
+		request.Header.Set("Cookie", "_puid="+puid+";")
 	}
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36")

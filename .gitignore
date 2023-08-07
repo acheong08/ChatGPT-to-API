@@ -9,3 +9,4 @@ freechatgpt
 chatgpttoapi
 tools/authenticator/.proxies.txt.swp
 .env
+*.har
