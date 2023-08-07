@@ -53,12 +53,12 @@ func NewAuthenticator(emailAddress, password, proxy string) *Authenticator {
 		EmailAddress: emailAddress,
 		Password:     password,
 		Proxy:        proxy,
-		UserAgent:    "ChatGPT/1.2023.187 (iOS 16.5.1; iPhone12,1; build 1744)",
+		UserAgent:    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
 	}
 	jar := tls_client.NewCookieJar()
 	options := []tls_client.HttpClientOption{
 		tls_client.WithTimeoutSeconds(20),
-		tls_client.WithClientProfile(tls_client.Safari_IOS_16_0),
+		tls_client.WithClientProfile(tls_client.Okhttp4Android13),
 		tls_client.WithNotFollowRedirects(),
 		tls_client.WithCookieJar(jar), // create cookieJar instance and pass it as argument
 		// Proxy
@@ -185,7 +185,6 @@ func (auth *Authenticator) partTwo(url string) *Error {
 		"Connection":      "keep-alive",
 		"User-Agent":      auth.UserAgent,
 		"Accept-Language": "en-US,en;q=0.9",
-		"Referer":         "https://ios.chat.openai.com/",
 	}
 
 	req, _ := http.NewRequest("GET", url, nil)
