@@ -7,7 +7,7 @@ ChatGPT のウェブサイトを使って偽 API を作る
 **API エンドポイント: http://127.0.0.1:8080/v1/chat/completions.**
 
 [英語ドキュメント（English Docs）](README.md)
-[中国語ドキュメント（Chinese Docs）](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/README_ZH.md)
+[中国語ドキュメント（Chinese Docs）](https://github.com/acheong08/ChatGPT-to-API/blob/master/README_ZH.md)
 ## セットアップ
 
 ### 認証
